@@ -9,6 +9,8 @@ mod flags;
 mod wifi_adapters;
 mod util;
 
+// TODO minify binary for size
+// TODO strip binary with build step too
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();
 
@@ -26,14 +28,12 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    // FIXME: this sets off windows access location prompt
     match get_wifi_adapters_len() {
         Ok(len) => match len {
             0 => flags.medium_penalty(),
             1 => flags.medium_bonus(),
             _ => flags.large_bonus(),
         },
-        // If rejected with location services
         Err(_) => flags.medium_penalty(),
     };
 
