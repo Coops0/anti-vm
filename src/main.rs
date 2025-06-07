@@ -1,5 +1,5 @@
 use crate::{
-    battery::get_battery, first_logon_time::days_since_installation, flags::Flags, util::inspect, wifi_adapters::get_wifi_adapters_len
+    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, sysinfo::score_sysinfo, util::inspect, wifi_adapters::get_wifi_adapters_len
 };
 
 mod battery;
@@ -7,14 +7,19 @@ mod displays;
 mod first_logon_time;
 mod flags;
 mod wifi_adapters;
+mod sysinfo;
 mod util;
 
-// TODO minify binary for size
+// TODO check across many (real) systems
+// TODO check across virtual box, hyperv, (and maybe even UTM?)
+
 // TODO strip binary with build step too
+// TODO setup better debugging that will be stripped in release
+// TODO setup clippy checks
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();
 
-    match days_since_installation() {
+    match inspect("days since install", days_since_installation()) {
         Some(days) => match days as u64 {
             0 => flags.extreme_penalty(),
             1..=6 => flags.large_penalty(),
@@ -28,7 +33,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    match get_wifi_adapters_len() {
+    match inspect("# wifi adapters", get_wifi_adapters_len()) {
         Ok(len) => match len {
             0 => flags.medium_penalty(),
             1 => flags.medium_bonus(),
@@ -37,13 +42,17 @@ fn main() -> anyhow::Result<()> {
         Err(_) => flags.medium_penalty(),
     };
 
-    match displays::score_displays(&mut flags) {
+    match inspect("score displays", score_displays(&mut flags)) {
         Ok(()) => {}
         Err(_) => flags.large_penalty(),
     }
 
-    if get_battery().unwrap_or_default() {
+    if inspect("battery info", get_battery()).unwrap_or_default() {
         flags.extreme_bonus();
+    }
+
+    if inspect("score sysinfo", score_sysinfo(&mut flags)).is_err() {
+        flags.large_penalty();
     }
 
     println!("Score: {}", flags.score());

@@ -6,7 +6,7 @@ use windows::Devices::Enumeration::DeviceInformation;
 use windows::Graphics::SizeInt32;
 
 use crate::flags::Flags;
-use crate::util::get_devices_iter;
+use crate::util::{get_devices_iter, inspect};
 
 // TODO score adapters
 // DisplayAdapterId
@@ -27,6 +27,8 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
         }
     }
 
+    println!("found {valid_displays} valid displays");
+
     match valid_displays {
         0 => flags.extreme_penalty(),
         1 => {}
@@ -41,7 +43,7 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
 fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Result<()> {
     let monitor = DisplayMonitor::FromInterfaceIdAsync(&device.Id()?)?.get()?;
 
-    match monitor.PhysicalConnector()? {
+    match inspect("(init) physical connector", monitor.PhysicalConnector())? {
         DisplayMonitorPhysicalConnectorKind::Unknown => {
             flags.large_penalty();
         }
@@ -70,14 +72,14 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => flags.large_penalty(),
     };
 
-    match monitor.ConnectionKind()? {
+    match inspect("conncetion kind", monitor.ConnectionKind()?) {
         DisplayMonitorConnectionKind::Internal | DisplayMonitorConnectionKind::Wired => {}
         DisplayMonitorConnectionKind::Wireless => flags.small_penalty(),
         DisplayMonitorConnectionKind::Virtual => flags.large_penalty(),
         _ => flags.medium_penalty(),
     };
 
-    match monitor.UsageKind()? {
+    match inspect("usage kind", monitor.UsageKind())? {
         DisplayMonitorUsageKind::Standard => {}
         // DisplayMonitorUsageKind::HeadMounted | DisplayMonitorUsageKind::SpecialPurpose{
         _ => flags.large_penalty(),
@@ -91,18 +93,19 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     }
 
     // VMware fails this
-    if monitor.DisplayName()?.is_empty() {
+    if inspect("display name", monitor.DisplayName())?.is_empty() {
         flags.large_penalty();
     }
 
-    match monitor.PhysicalSizeInInches().map(|s| s.GetSize()) {
+    // Error code 0, The operation completely successfully
+    match inspect("physical size in in", monitor.PhysicalSizeInInches().map(|s| s.GetSize())) {
         // TODO look at this
         Ok(_resolution) => {}
         // VMware fails this
         Err(_) => flags.large_penalty(),
     }
 
-    let max_luminance = monitor.MaxLuminanceInNits();
+    let max_luminance = inspect("max lum nits", monitor.MaxLuminanceInNits());
     match (monitor.MinLuminanceInNits(), &max_luminance) {
         (Ok(0.0), Ok(0.0)) => {
             // VMware
@@ -112,7 +115,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => {}
     }
 
-    match monitor.MaxAverageFullFrameLuminanceInNits() {
+    match inspect("max avg full frame lum nits", monitor.MaxAverageFullFrameLuminanceInNits()) {
         Ok(l) => {
             if let Ok(ml) = &max_luminance {
                 if l == *ml {
@@ -128,7 +131,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     if let Ok(SizeInt32 {
         Width: width,
         Height: height,
-    }) = monitor.NativeResolutionInRawPixels()
+    }) = inspect("native res px", monitor.NativeResolutionInRawPixels())
     {
         if width == 0 || height == 0 {
             flags.large_penalty();

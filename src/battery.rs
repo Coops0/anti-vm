@@ -6,7 +6,7 @@ use windows::{
 
 use crate::util::get_devices_iter;
 
-pub fn get_battery() -> anyhow::Result<boolean> {
+pub fn get_battery() -> anyhow::Result<bool> {
     let selector = Battery::GetDeviceSelector()?;
     let batteries = get_devices_iter(&selector)?;
 
@@ -16,7 +16,7 @@ pub fn get_battery() -> anyhow::Result<boolean> {
         }
     }
 
-    Err(false)
+    Ok(false)
 }
 
 fn get_device_as_battery(device: &DeviceInformation) -> anyhow::Result<bool> {
