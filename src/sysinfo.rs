@@ -1,8 +1,12 @@
-use windows::Win32::System::SystemInformation::{
-    self, GetNativeSystemInfo, GetPhysicallyInstalledSystemMemory, PROCESSOR_ARCHITECTURE,
-    SYSTEM_INFO, *,
+use std::path::{Path, PathBuf};
+use std::{fs, io};
+
+use anyhow::{Context, bail};
+use windows::Win32::Storage::FileSystem::{
+    self, GetCompressedFileSizeW, GetDiskSpaceInformationW, INVALID_FILE_SIZE,
 };
-use windows_core::PWSTR;
+use windows::Win32::{Storage::FileSystem::DISK_SPACE_INFORMATION, System::SystemInformation::*};
+use windows_core::{HSTRING, PCWSTR, w};
 
 use crate::{flags::Flags, util::inspect};
 
@@ -59,49 +63,104 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         flags.medium_bonus();
     }
 
-    // ComputerNameDnsDomain
-    // The name of the DNS domain assigned to the local computer. If the local computer is a node in a cluster, lpBuffer receives the DNS domain name of the cluster virtual server.
-    // ComputerNameDnsFullyQualified
-    // The fully qualified DNS name that uniquely identifies the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. If the local computer is a node in a cluster, lpBuffer receives the fully qualified DNS name of the cluster virtual server.
-    // ComputerNameDnsHostname
-    // The DNS host name of the local computer. If the local computer is a node in a cluster, lpBuffer receives the DNS host name of the cluster virtual server.
-    // ComputerNameNetBIOS
-    // The NetBIOS name of the local computer. If the local computer is a node in a cluster, lpBuffer receives the NetBIOS name of the cluster virtual server.
-    // ComputerNamePhysicalDnsDomain
-    // The name of the DNS domain assigned to the local computer. If the local computer is a node in a cluster, lpBuffer receives the DNS domain name of the local computer, not the name of the cluster virtual server.
-    // ComputerNamePhysicalDnsFullyQualified
-    // The fully qualified DNS name that uniquely identifies the computer. If the local computer is a node in a cluster, lpBuffer receives the fully qualified DNS name of the local computer, not the name of the cluster virtual server.
-    // The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
-    // ComputerNamePhysicalDnsHostname
-    // The DNS host name of the local computer. If the local computer is a node in a cluster, lpBuffer receives the DNS host name of the local computer, not the name of the cluster virtual server.
-    // ComputerNamePhysicalNetBIOS
-    // The NetBIOS name of the local computer. If the local computer is a node in a cluster, lpBuffer receives the NetBIOS name of the local computer, not the name of the cluster virtual server.
-
-    for name_type in [
-        ComputerNameDnsDomain, // blank
-        ComputerNameDnsFullyQualified, // cooper-desktop
-        ComputerNameDnsHostname, // cooper-desktop
-        // ComputerNameMax,
-        ComputerNameNetBIOS, // COOPER-DESKTOP
-        ComputerNamePhysicalDnsDomain, // blank
-        ComputerNamePhysicalDnsFullyQualified, // cooper-desktop
-        ComputerNamePhysicalDnsHostname, // cooper-desktop
-        ComputerNamePhysicalNetBIOS, // COOPER-DESKTOP
-    ] {
-        let mut name_buffer = [0u16; 256];
-
-        let name_buffer_ptr = PWSTR(name_buffer.as_mut_ptr());
-        let mut name_buffer_size = name_buffer.len() as u32;
-
-        unsafe {
-            GetComputerNameExW(name_type, Some(name_buffer_ptr), &mut name_buffer_size)?;
-        }
-
-        let name = unsafe { name_buffer_ptr.to_string()? };
-        println!("Computer Name ({:?}): {}", name_type, name);
+    let disk_space = inspect("disk space", get_disk_space(flags))?;
+    match disk_space.total_space_gig {
+        0..64 => flags.extreme_penalty(),
+        64..127 => flags.large_penalty(),
+        127..512 => {}
+        512..=1024 => flags.small_bonus(),
+        _ => flags.large_bonus(),
     }
+
+    // let windows_files_space =
+    // if disk_space.free_space_gig > disk_space.total_space_gig
+    inspect("windows dir size", get_windows_dir_size_gigs())?;
 
     Ok(())
 }
 
-// https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getcomputernameexa
+#[derive(Debug)]
+struct DiskSpaceReport {
+    total_space_gig: u64,
+    free_space_gig: u64,
+}
+
+const GIGA_BYTE: u64 = 1024 * 1024 * 1024;
+
+fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
+    let mut disk_space_information = DISK_SPACE_INFORMATION::default();
+    unsafe {
+        // Initally try to use main disk in case we are being executed from a USB drive or network
+        if let Err(err) = GetDiskSpaceInformationW(w!("C:/"), &mut disk_space_information) {
+            println!("Error getting C: disk space information: {err:?}");
+            flags.large_penalty();
+
+            // Fallback to current disk
+            GetDiskSpaceInformationW(None, &mut disk_space_information)?;
+        }
+    }
+
+    let bytes_per_unit = (disk_space_information.SectorsPerAllocationUnit
+        * disk_space_information.BytesPerSector) as u64;
+
+    let total_space = disk_space_information.CallerTotalAllocationUnits * bytes_per_unit;
+    let free_space = disk_space_information.CallerAvailableAllocationUnits * bytes_per_unit;
+
+    let total_space_gig = total_space / GIGA_BYTE;
+    let free_space_gig = free_space / GIGA_BYTE;
+
+    Ok(DiskSpaceReport {
+        total_space_gig,
+        free_space_gig,
+    })
+}
+
+fn get_windows_dir_size_gigs() -> anyhow::Result<u64> {
+    // GetSystemDirectoryW
+    // GetWindowsDirectoryW
+
+    let mut buf = [0u16; 16383];
+    let out_size = unsafe { GetWindowsDirectoryW(Some(&mut buf)) };
+
+    if out_size == 0 {
+        bail!("get windows directory returned 0 len");
+    }
+
+    let windows_dir = String::from_utf16_lossy(&buf[..out_size as usize]);
+    println!("got windows directory: {}", windows_dir);
+
+    let dir_size_bytes = dir_size(windows_dir)?;
+    Ok(dir_size_bytes / GIGA_BYTE)
+}
+
+fn dir_size(path: impl Into<PathBuf>) -> anyhow::Result<u64> {
+    fn dir_size(mut dir: fs::ReadDir) -> anyhow::Result<u64> {
+        dir.try_fold(0, |acc, file| {
+            let file = file?;
+            let size = match file.file_type()? {
+                ft if ft.is_dir() => dir_size(fs::read_dir(file.path())?)?,
+                ft if ft.is_file() => compressed_file_size(&file.path())? as u64,
+                _ => 0,
+            };
+            Ok(acc + size)
+        })
+    }
+
+    dir_size(fs::read_dir(path.into())?)
+}
+
+fn compressed_file_size(path: &Path) -> anyhow::Result<u32> {
+    let h_str = HSTRING::from(
+        path.canonicalize()?
+            .to_str()
+            .context("failed to get abs path")?,
+    );
+    let path_pcw_str = PCWSTR(h_str.as_ptr());
+
+    let size = unsafe { GetCompressedFileSizeW(path_pcw_str, None) };
+    if size == INVALID_FILE_SIZE {
+        bail!("get invalid file size");
+    }
+
+    Ok(size)
+}

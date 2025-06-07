@@ -4,6 +4,7 @@ use windows::Devices::Display::{
 };
 use windows::Devices::Enumeration::DeviceInformation;
 use windows::Graphics::SizeInt32;
+use windows_core::HRESULT;
 
 use crate::flags::Flags;
 use crate::util::{get_devices_iter, inspect};
@@ -99,14 +100,17 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         flags.large_penalty();
     }
 
-    // FIXME: sometimes this "fails" with error code 0, The operation completely successfully
+    // "An error code of zero - S_OK - just means that the API returned a null pointer value on the ABI so there was no interface to populate the Ok variant of Result."
+    // https://github.com/microsoft/windows-rs/issues/3322#issuecomment-2408606524
     match inspect(
         "physical size in in",
         monitor.PhysicalSizeInInches().and_then(|s| s.GetSize()),
     ) {
         Ok(_resolution) => {}
-        // VMware fails this
-        Err(_) => flags.large_penalty(),
+        Err(_err) => {
+            // VMware: err.code() == HRESULT(0)
+            flags.large_penalty();
+        }
     }
 
     let max_luminance = inspect("max lum nits", monitor.MaxLuminanceInNits());

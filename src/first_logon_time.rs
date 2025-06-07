@@ -6,6 +6,8 @@ use windows::Win32::{
 };
 use windows_registry::{Key, USERS};
 
+// TODO HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\InstallDate
+// or TODO https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-operatingsystem?redirectedfrom=MSDN
 pub fn days_since_installation() -> Option<i64> {
     let oldest = USERS
         .keys()

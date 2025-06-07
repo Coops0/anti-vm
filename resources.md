@@ -2,6 +2,8 @@
 [microsoft winrt docs](https://learn.microsoft.com/en-us/uwp/api/windows.devices.power.batteryreport.designcapacityinmilliwatthours?view=winrt-26100#windows-devices-power-batteryreport-designcapacityinmilliwatthours)
 [micorosft win32 docs](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getphysicallyinstalledsystemmemory)
 
+[conv str to PCWSTR](https://github.com/microsoft/windows-rs/issues/973#issuecomment-1346528303)
+
 
 ### todo
 [apps diagnostics](https://learn.microsoft.com/en-us/uwp/api/windows.system.appdiagnosticinfo?view=winrt-26100)

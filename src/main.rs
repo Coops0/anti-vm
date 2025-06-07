@@ -15,6 +15,7 @@ mod util;
 
 // TODO use obfstr
 // TODO transition all prints to debug_println!
+// TODO Can fully remove all #[derive(Debug)] strings??
 
 // TODO strip binary with build step too
 // TODO setup clippy checks
