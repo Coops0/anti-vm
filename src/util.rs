@@ -1,4 +1,3 @@
-
 use windows::Devices::Enumeration::{DeviceInformation, DeviceInformationKind};
 use windows_core::HSTRING;
 
@@ -24,4 +23,12 @@ pub fn get_devices_iter(
         .filter(|device| device.Kind() == Ok(DeviceInformationKind::DeviceInterface));
 
     Ok(devices_iter)
+}
+
+#[macro_export]
+macro_rules! debug_println {
+    ($($arg:tt)*) => {
+        #[cfg(debug_assertions)]
+        println!($($arg)*);
+    };
 }

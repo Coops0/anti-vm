@@ -13,8 +13,10 @@ mod util;
 // TODO check across many (real) systems
 // TODO check across virtual box, hyperv, (and maybe even UTM?)
 
+// TODO use obfstr
+// TODO transition all prints to debug_println!
+
 // TODO strip binary with build step too
-// TODO setup better debugging that will be stripped in release
 // TODO setup clippy checks
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();

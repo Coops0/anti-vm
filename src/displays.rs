@@ -73,7 +73,9 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     };
 
     match inspect("conncetion kind", monitor.ConnectionKind()?) {
-        DisplayMonitorConnectionKind::Internal | DisplayMonitorConnectionKind::Wired => {}
+        // Laptop
+        DisplayMonitorConnectionKind::Internal => flags.medium_bonus(),
+        DisplayMonitorConnectionKind::Wired => {}
         DisplayMonitorConnectionKind::Wireless => flags.small_penalty(),
         DisplayMonitorConnectionKind::Virtual => flags.large_penalty(),
         _ => flags.medium_penalty(),
@@ -97,9 +99,11 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         flags.large_penalty();
     }
 
-    // Error code 0, The operation completely successfully
-    match inspect("physical size in in", monitor.PhysicalSizeInInches().map(|s| s.GetSize())) {
-        // TODO look at this
+    // FIXME: sometimes this "fails" with error code 0, The operation completely successfully
+    match inspect(
+        "physical size in in",
+        monitor.PhysicalSizeInInches().and_then(|s| s.GetSize()),
+    ) {
         Ok(_resolution) => {}
         // VMware fails this
         Err(_) => flags.large_penalty(),
@@ -115,7 +119,10 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => {}
     }
 
-    match inspect("max avg full frame lum nits", monitor.MaxAverageFullFrameLuminanceInNits()) {
+    match inspect(
+        "max avg full frame lum nits",
+        monitor.MaxAverageFullFrameLuminanceInNits(),
+    ) {
         Ok(l) => {
             if let Ok(ml) = &max_luminance {
                 if l == *ml {
@@ -128,17 +135,45 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         Err(_) => flags.medium_penalty(),
     }
 
-    if let Ok(SizeInt32 {
-        Width: width,
-        Height: height,
-    }) = inspect("native res px", monitor.NativeResolutionInRawPixels())
-    {
-        if width == 0 || height == 0 {
-            flags.large_penalty();
-        } else {
-            // todo
+    match inspect("native res px", monitor.NativeResolutionInRawPixels()) {
+        Ok(resolution) => {
+            score_display_size(resolution.Width, resolution.Height, flags);
         }
+        Err(_) => flags.large_penalty(),
     }
 
     Ok(())
+}
+
+// https://store.steampowered.com/hwsurvey
+// 800 x 1280 0.56%
+// 1280 x 720 0.23%
+// 1280 x 1024 0.26%
+// 1280 x 800 0.35%
+// 1360 x 768 0.56%
+// 1366 x 768 2.91%
+// 1440 x 900 0.91%
+// 1470 x 956 0.27%
+// 1512 x 982 0.25%
+// 1600 x 900 0.86%
+// 1680 x 1050 0.52%
+// 1920 x 1080 55.35%
+// 1920 x 1200 1.66%
+// 2560 x 1440 19.49%
+// 2560 x 1600 4.20%
+// 2560 x 1080 0.84%
+// 2880 x 1800 0.39%
+// 3440 x 1440 2.86%
+// 3840 x 2160 4.48%
+// 5120 x 1440 0.39%
+// Other 2.67%
+
+fn score_display_size(width: i32, height: i32, flags: &mut Flags) {
+    if width < 256 || height < 256 {
+        flags.extreme_penalty();
+    } else if width < 1366 || height < 768 {
+        flags.large_penalty();
+    } else if width < 1920 || height < 1080 {
+        flags.small_penalty();
+    }
 }
