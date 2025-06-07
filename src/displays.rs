@@ -1,15 +1,12 @@
-use anyhow::{Context, bail};
 use windows::Devices::Display::{
     DisplayMonitor, DisplayMonitorConnectionKind, DisplayMonitorPhysicalConnectorKind,
     DisplayMonitorUsageKind,
 };
-use windows::Devices::Enumeration::{DeviceInformation, DeviceInformationKind};
-use windows::Graphics::Display::{DisplayInformation, DisplayServices};
+use windows::Devices::Enumeration::DeviceInformation;
 use windows::Graphics::SizeInt32;
-use windows_registry::HSTRING;
 
 use crate::flags::Flags;
-use crate::inspect;
+use crate::util::get_devices_iter;
 
 // TODO score adapters
 // DisplayAdapterId
@@ -20,22 +17,13 @@ use crate::inspect;
 
 pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
     let selector = DisplayMonitor::GetDeviceSelector()?;
-
     let mut valid_displays = 0;
 
-    let devices = DeviceInformation::FindAllAsyncAqsFilter(&selector)?.get()?;
-    let devices_size = devices.Size()?;
-
-    for idx in 0..devices_size {
-        let Ok(device) = devices.GetAt(idx) else {
-            continue;
-        };
-
-        match inspect("monitor instance", display_score(&device, flags)) {
-            Ok(()) => {
-                valid_displays += 1;
-            }
-            Err(_) => flags.medium_penalty(),
+    for display in get_devices_iter(&selector)? {
+        if score_display(&display, flags).is_ok() {
+            valid_displays += 1;
+        } else {
+            flags.medium_penalty();
         }
     }
 
@@ -50,11 +38,7 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn display_score(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Result<()> {
-    if device.Kind()? != DeviceInformationKind::DeviceInterface {
-        return Ok(());
-    }
-
+fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Result<()> {
     let monitor = DisplayMonitor::FromInterfaceIdAsync(&device.Id()?)?.get()?;
 
     match monitor.PhysicalConnector()? {
@@ -141,10 +125,10 @@ fn display_score(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         Err(_) => flags.medium_penalty(),
     }
 
-    if let SizeInt32 {
+    if let Ok(SizeInt32 {
         Width: width,
         Height: height,
-    } = monitor.NativeResolutionInRawPixels()?
+    }) = monitor.NativeResolutionInRawPixels()
     {
         if width == 0 || height == 0 {
             flags.large_penalty();

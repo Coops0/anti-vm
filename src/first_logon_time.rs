@@ -10,7 +10,7 @@ pub fn days_since_installation() -> Option<i64> {
     let oldest = USERS
         .keys()
         .ok()?
-        .filter_map(|name| try_get_logon_starts(&name, &USERS).ok())
+        .filter_map(|name| try_get_logon_starts(&name, USERS).ok())
         .min()?;
 
     Some(Utc::now().signed_duration_since(oldest).num_days())

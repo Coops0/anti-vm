@@ -1,6 +1,5 @@
 use crate::{
-    battery::get_battery, first_logon_time::days_since_installation, flags::Flags,
-    wifi_adapters::get_wifi_adapters_len,
+    battery::get_battery, first_logon_time::days_since_installation, flags::Flags, util::inspect, wifi_adapters::get_wifi_adapters_len
 };
 
 mod battery;
@@ -8,17 +7,12 @@ mod displays;
 mod first_logon_time;
 mod flags;
 mod wifi_adapters;
+mod util;
 
-pub fn inspect<T: std::fmt::Debug>(name: &str, value: T) -> T {
-    println!("{name}: {value:?}");
-    value
-}
-
-// Why do we need c++ redist? ("because vcruntime140.dll was not found")
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();
 
-    match inspect("days since install", days_since_installation()) {
+    match days_since_installation() {
         Some(days) => match days as u64 {
             0 => flags.extreme_penalty(),
             1..=6 => flags.large_penalty(),
@@ -33,7 +27,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     // FIXME: this sets off windows access location prompt
-    match inspect("wifi adapters", get_wifi_adapters_len()) {
+    match get_wifi_adapters_len() {
         Ok(len) => match len {
             0 => flags.medium_penalty(),
             1 => flags.medium_bonus(),
@@ -43,7 +37,7 @@ fn main() -> anyhow::Result<()> {
         Err(_) => flags.medium_penalty(),
     };
 
-    match inspect("displays", displays::score_displays(&mut flags)) {
+    match displays::score_displays(&mut flags) {
         Ok(()) => {}
         Err(_) => flags.large_penalty(),
     }

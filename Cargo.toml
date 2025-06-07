@@ -22,4 +22,5 @@ windows = { version = "0.61.1", features = [
     "Devices_Power",
     "System_Power"
 ] }
+windows-core = "0.61.2"
 windows-registry = "0.5.2"

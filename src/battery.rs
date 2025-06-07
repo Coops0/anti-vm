@@ -1,31 +1,24 @@
 use anyhow::bail;
 use windows::{
     Devices::{
-        Enumeration::{DeviceInformation, DeviceInformationKind},
+        Enumeration::DeviceInformation,
         Power::Battery,
     },
     System::Power::BatteryStatus,
 };
 
+use crate::util::get_devices_iter;
+
 pub fn get_battery() -> anyhow::Result<()> {
     let selector = Battery::GetDeviceSelector()?;
-    let devices = DeviceInformation::FindAllAsyncAqsFilter(&selector)?.get()?;
-    let devices_size = devices.Size()?;
+    let batteries = get_devices_iter(&selector)?;
 
-    for idx in 0..devices_size {
-        let Ok(device) = devices.GetAt(idx) else {
-            continue;
-        };
-
-        if device.Kind() != Ok(DeviceInformationKind::DeviceInterface) {
-            continue;
-        }
-
+    for device in batteries {
         if get_device_as_battery(&device).is_ok() {
             return Ok(());
         }
     }
-
+    
     Err(anyhow::anyhow!("no valid battery found"))
 }
 

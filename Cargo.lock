@@ -185,6 +185,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "windows",
+ "windows-core",
  "windows-registry",
 ]
 
