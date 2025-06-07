@@ -1,0 +1,25 @@
+[package]
+name = "vm-detect"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.98"
+chrono = "0.4.41"
+windows = { version = "0.61.1", features = [
+    "Foundation",
+    "Globalization_DateTimeFormatting",
+    "Win32",
+    "Win32_System",
+    "Win32_System_Time",
+    "Devices",
+    "Devices_WiFi",
+    "Networking_Connectivity",
+    "Graphics",
+    "Graphics_Display",
+    "Devices_Display",
+    "Devices_Enumeration",
+    "Devices_Power",
+    "System_Power"
+] }
+windows-registry = "0.5.2"
