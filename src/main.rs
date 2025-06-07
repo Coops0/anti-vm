@@ -42,7 +42,7 @@ fn main() -> anyhow::Result<()> {
         Err(_) => flags.large_penalty(),
     }
 
-    if get_battery().is_ok() {
+    if get_battery().unwrap_or_default() {
         flags.extreme_bonus();
     }
 

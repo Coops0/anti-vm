@@ -1,62 +1,44 @@
 use anyhow::bail;
 use windows::{
-    Devices::{
-        Enumeration::DeviceInformation,
-        Power::Battery,
-    },
+    Devices::{Enumeration::DeviceInformation, Power::Battery},
     System::Power::BatteryStatus,
 };
 
 use crate::util::get_devices_iter;
 
-pub fn get_battery() -> anyhow::Result<()> {
+pub fn get_battery() -> anyhow::Result<boolean> {
     let selector = Battery::GetDeviceSelector()?;
     let batteries = get_devices_iter(&selector)?;
 
     for device in batteries {
-        if get_device_as_battery(&device).is_ok() {
-            return Ok(());
+        if get_device_as_battery(&device).unwrap_or_default() {
+            return Ok(true);
         }
     }
-    
-    Err(anyhow::anyhow!("no valid battery found"))
+
+    Err(false)
 }
 
-fn get_device_as_battery(device: &DeviceInformation) -> anyhow::Result<()> {
+fn get_device_as_battery(device: &DeviceInformation) -> anyhow::Result<bool> {
     let battery = Battery::FromIdAsync(&device.Id()?)?.get()?;
     let battery_report = battery.GetReport()?;
 
     if battery_report.Status()? == BatteryStatus::NotPresent {
-        bail!("battery not present");
+        return Ok(false);
     }
 
-    if let Ok(charge_rate_value) = battery_report.ChargeRateInMilliwatts()
-        && let Ok(charge_rate) = charge_rate_value.GetInt32()
-        && charge_rate != 0
-    {
-        return Ok(());
-    }
+    let values = [
+        battery_report.ChargeRateInMilliwatts(),
+        battery_report.DesignCapacityInMilliwattHours(),
+        battery_report.FullChargeCapacityInMilliwattHours(),
+        battery_report.RemainingCapacityInMilliwattHours(),
+    ];
 
-    if let Ok(design_capacity_value) = battery_report.DesignCapacityInMilliwattHours()
-        && let Ok(design_capacity) = design_capacity_value.GetInt32()
-        && design_capacity != 0
-    {
-        return Ok(());
-    }
+    let found_valid_value = values
+        .into_iter()
+        .flatten()
+        .filter_map(|value| value.GetInt32().ok())
+        .any(|value| value != 0);
 
-    if let Ok(full_charge_capacity_value) = battery_report.FullChargeCapacityInMilliwattHours()
-        && let Ok(full_charge_capacity) = full_charge_capacity_value.GetInt32()
-        && full_charge_capacity != 0
-    {
-        return Ok(());
-    }
-
-    if let Ok(remaining_capacity_value) = battery_report.RemainingCapacityInMilliwattHours()
-        && let Ok(remaining_capacity) = remaining_capacity_value.GetInt32()
-        && remaining_capacity != 0
-    {
-        return Ok(());
-    }
-
-    Err(anyhow::anyhow!("no valid field found"))
+    Ok(found_valid_value)
 }

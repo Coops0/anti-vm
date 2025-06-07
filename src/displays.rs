@@ -23,7 +23,7 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
         if score_display(&display, flags).is_ok() {
             valid_displays += 1;
         } else {
-            flags.medium_penalty();
+            flags.large_penalty();
         }
     }
 
