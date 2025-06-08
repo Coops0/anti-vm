@@ -1,0 +1,24 @@
+--- reserved for system use
+{36fc9e60-c465-11cf-8056-444553540000}
+USB Bus Devices (hubs and host controllers)	https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-reserved-for-system-use
+{c166523c-fe0c-4a94-a586-f1a80cfbbf3e}
+Audio endpoint https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-reserved-for-system-use
+
+--- available to vendors
+{ca3e7ab9-b4c3-4ae6-8251-579ef933890f}
+Camera Device	https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-available-to-vendors
+{4d36e96b-e325-11ce-bfc1-08002be10318}
+Keyboard https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-available-to-vendors
+{4d36e96f-e325-11ce-bfc1-08002be10318}
+Mouse https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-available-to-vendors
+{4d36e96c-e325-11ce-bfc1-08002be10318}
+Multimedia https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-available-to-vendors
+
+--- other
+{c8b76578-d062-4834-0001-f8b6f2162a22}
+specific (foscruite audio hub)
+
+
+--- stack overflow / guid devinterface
+{A5DCBF10-6530-11D2-901F-00C04FB951ED}
+generic usb device? https://learn.microsoft.com/en-us/windows-hardware/drivers/install/guid-devinterface-usb-device

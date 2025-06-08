@@ -6,22 +6,26 @@ pub fn inspect<T: std::fmt::Debug>(name: &str, value: T) -> T {
     value
 }
 
-pub fn get_devices_iter(
-    selector: &HSTRING,
-) -> anyhow::Result<impl Iterator<Item = DeviceInformation>> {
-    let devices_collection = DeviceInformation::FindAllAsyncAqsFilter(selector)?.get()?;
+pub fn get_devices_iter<'a>(
+    selector: &'a HSTRING,
+) -> anyhow::Result<impl Iterator<Item = DeviceInformation> + 'static + use<>>  {
+    let devices_collection =
+        DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(
+            selector,
+            None,
+            DeviceInformationKind::DeviceInterface,
+        )?
+        .get()?;
     let devices_size = devices_collection.Size()? as usize;
 
     let mut devices = vec![None; devices_size];
-    if devices_size != 0 {
-        devices_collection.GetMany(0, &mut devices)?;
-    }
+    let fetched_size = if devices_size != 0 {
+        devices_collection.GetMany(0, &mut devices)? as usize
+    } else {
+        0
+    };
 
-    let devices_iter = devices
-        .into_iter()
-        .flatten()
-        .filter(|device| device.Kind() == Ok(DeviceInformationKind::DeviceInterface));
-
+    let devices_iter = devices.into_iter().take(fetched_size).flatten();
     Ok(devices_iter)
 }
 

@@ -3,8 +3,6 @@ use windows::Devices::Display::{
     DisplayMonitorUsageKind,
 };
 use windows::Devices::Enumeration::DeviceInformation;
-use windows::Graphics::SizeInt32;
-use windows_core::HRESULT;
 
 use crate::flags::Flags;
 use crate::util::{get_devices_iter, inspect};
@@ -60,6 +58,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
             flags.small_penalty();
         }
 
+        // VGA
         DisplayMonitorPhysicalConnectorKind::HD15 => {
             // This is the type that VMware uses
             flags.large_penalty();
@@ -73,7 +72,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => flags.large_penalty(),
     };
 
-    match inspect("conncetion kind", monitor.ConnectionKind()?) {
+    match inspect("connection kind", monitor.ConnectionKind()?) {
         // Laptop
         DisplayMonitorConnectionKind::Internal => flags.medium_bonus(),
         DisplayMonitorConnectionKind::Wired => {}
@@ -127,10 +126,12 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         "max avg full frame lum nits",
         monitor.MaxAverageFullFrameLuminanceInNits(),
     ) {
+        Ok(0.0) => flags.medium_penalty(),
         Ok(l) => {
+            // If these match up then that's a sign the display is real
             if let Ok(ml) = &max_luminance {
                 if l == *ml {
-                    flags.medium_bonus();
+                    flags.small_bonus();
                 } else {
                     flags.medium_penalty();
                 }

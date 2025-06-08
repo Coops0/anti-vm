@@ -1,3 +1,4 @@
+#[derive(Debug)]
 enum Level {
     Tiny,
     Small,
@@ -71,6 +72,9 @@ impl Flags {
     }
 
     pub fn score(&self) -> i32 {
+        println!("penalties ({}) {:?}", self.penalties.len(), self.penalties);
+        println!("bonuses ({}) {:?}", self.bonuses.len(), self.bonuses);
+
         let penalty_score: i32 = self.penalties.iter().map(Level::value).sum();
         let bonus_score: i32 = self.bonuses.iter().map(Level::value).sum();
         bonus_score - penalty_score

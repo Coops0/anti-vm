@@ -1,4 +1,3 @@
-use anyhow::bail;
 use windows::{
     Devices::{Enumeration::DeviceInformation, Power::Battery},
     System::Power::BatteryStatus,

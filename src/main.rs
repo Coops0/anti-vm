@@ -1,5 +1,5 @@
 use crate::{
-    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, sysinfo::score_sysinfo, util::inspect, wifi_adapters::get_wifi_adapters_len
+    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, sysinfo::score_sysinfo, usb_devices::get_usb_devices, util::inspect, wifi_adapters::get_wifi_adapters_len
 };
 
 mod battery;
@@ -8,6 +8,7 @@ mod first_logon_time;
 mod flags;
 mod wifi_adapters;
 mod sysinfo;
+mod usb_devices;
 mod util;
 
 // TODO check across many (real) systems
@@ -58,7 +59,9 @@ fn main() -> anyhow::Result<()> {
         flags.large_penalty();
     }
 
-    println!("Score: {}", flags.score());
+    inspect("usb devices", get_usb_devices())?;
+
+    println!("score: {}", flags.score());
 
     Ok(())
 }

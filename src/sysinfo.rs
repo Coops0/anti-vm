@@ -1,12 +1,8 @@
-use std::path::{Path, PathBuf};
-use std::{fs, io};
-
-use anyhow::{Context, bail};
-use windows::Win32::Storage::FileSystem::{
-    self, GetCompressedFileSizeW, GetDiskSpaceInformationW, INVALID_FILE_SIZE,
+use windows::Win32::{
+    Storage::FileSystem::{DISK_SPACE_INFORMATION, GetDiskSpaceInformationW},
+    System::SystemInformation::*,
 };
-use windows::Win32::{Storage::FileSystem::DISK_SPACE_INFORMATION, System::SystemInformation::*};
-use windows_core::{HSTRING, PCWSTR, w};
+use windows_core::w;
 
 use crate::{flags::Flags, util::inspect};
 
@@ -37,18 +33,18 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
 
     // Only useful field is processors
     // The architecture is the same as host architecture
-    println!("Number of Processors: {}", system_info.dwNumberOfProcessors);
+    println!("number of processors: {}", system_info.dwNumberOfProcessors);
     match system_info.dwNumberOfProcessors {
         0..=1 => flags.large_penalty(),
         2 => flags.medium_penalty(),
-        3..=4 => {}
-        5..=8 => flags.medium_bonus(),
+        3..=8 => {}
+        9..=12 => flags.medium_bonus(),
         _ => flags.extreme_bonus(),
     };
 
     let tick_count_ms = unsafe { GetTickCount() };
     let tick_count_sec = tick_count_ms / 1000;
-    println!("Tick Count: {tick_count_sec}s");
+    println!("tick count: {tick_count_sec}s");
 
     match tick_count_sec {
         0..=60 => flags.extreme_penalty(),
@@ -65,16 +61,31 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
 
     let disk_space = inspect("disk space", get_disk_space(flags))?;
     match disk_space.total_space_gig {
-        0..64 => flags.extreme_penalty(),
-        64..127 => flags.large_penalty(),
+        // Windows 11 requires >= 64gb disk to even install
+        0..=64 => flags.extreme_penalty(),
+        65..127 => flags.large_penalty(),
         127..512 => {}
         512..=1024 => flags.small_bonus(),
         _ => flags.large_bonus(),
     }
 
-    // let windows_files_space =
-    // if disk_space.free_space_gig > disk_space.total_space_gig
-    inspect("windows dir size", get_windows_dir_size_gigs())?;
+    // (size on disk) could be anywhere from ~13-27gb
+    // On a fresh VM install it's 13gb
+    const EST_WINDOWS_DIR_SIZE_GIG: u64 = 16;
+    let used_space_minus_windows_installation = disk_space
+        .total_space_gig
+        .checked_sub(disk_space.free_space_gig + EST_WINDOWS_DIR_SIZE_GIG)
+        .unwrap_or(0);
+
+    println!("used space minus windows installation: {used_space_minus_windows_installation}GB");
+
+    match used_space_minus_windows_installation {
+        0..=3 => flags.large_penalty(),
+        4..=16 => flags.medium_penalty(),
+        17..=64 => {}
+        65..=128 => flags.small_bonus(),
+        _ => flags.medium_bonus(),
+    }
 
     Ok(())
 }
@@ -84,8 +95,6 @@ struct DiskSpaceReport {
     total_space_gig: u64,
     free_space_gig: u64,
 }
-
-const GIGA_BYTE: u64 = 1024 * 1024 * 1024;
 
 fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
     let mut disk_space_information = DISK_SPACE_INFORMATION::default();
@@ -106,6 +115,8 @@ fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
     let total_space = disk_space_information.CallerTotalAllocationUnits * bytes_per_unit;
     let free_space = disk_space_information.CallerAvailableAllocationUnits * bytes_per_unit;
 
+    const GIGA_BYTE: u64 = 1024 * 1024 * 1024;
+
     let total_space_gig = total_space / GIGA_BYTE;
     let free_space_gig = free_space / GIGA_BYTE;
 
@@ -113,54 +124,4 @@ fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
         total_space_gig,
         free_space_gig,
     })
-}
-
-fn get_windows_dir_size_gigs() -> anyhow::Result<u64> {
-    // GetSystemDirectoryW
-    // GetWindowsDirectoryW
-
-    let mut buf = [0u16; 16383];
-    let out_size = unsafe { GetWindowsDirectoryW(Some(&mut buf)) };
-
-    if out_size == 0 {
-        bail!("get windows directory returned 0 len");
-    }
-
-    let windows_dir = String::from_utf16_lossy(&buf[..out_size as usize]);
-    println!("got windows directory: {}", windows_dir);
-
-    let dir_size_bytes = dir_size(windows_dir)?;
-    Ok(dir_size_bytes / GIGA_BYTE)
-}
-
-fn dir_size(path: impl Into<PathBuf>) -> anyhow::Result<u64> {
-    fn dir_size(mut dir: fs::ReadDir) -> anyhow::Result<u64> {
-        dir.try_fold(0, |acc, file| {
-            let file = file?;
-            let size = match file.file_type()? {
-                ft if ft.is_dir() => dir_size(fs::read_dir(file.path())?)?,
-                ft if ft.is_file() => compressed_file_size(&file.path())? as u64,
-                _ => 0,
-            };
-            Ok(acc + size)
-        })
-    }
-
-    dir_size(fs::read_dir(path.into())?)
-}
-
-fn compressed_file_size(path: &Path) -> anyhow::Result<u32> {
-    let h_str = HSTRING::from(
-        path.canonicalize()?
-            .to_str()
-            .context("failed to get abs path")?,
-    );
-    let path_pcw_str = PCWSTR(h_str.as_ptr());
-
-    let size = unsafe { GetCompressedFileSizeW(path_pcw_str, None) };
-    if size == INVALID_FILE_SIZE {
-        bail!("get invalid file size");
-    }
-
-    Ok(size)
 }

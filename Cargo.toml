@@ -16,6 +16,7 @@ windows = { version = "0.61.1", features = [
     "Win32_System_Time",
     "Win32_System_SystemInformation",
     "Win32_Storage",
+    "Win32_Storage_FileSystem",
     "Devices",
     "Devices_WiFi",
     "Networking_Connectivity",
@@ -25,7 +26,9 @@ windows = { version = "0.61.1", features = [
     "Devices_Enumeration",
     "Devices_Power",
     "System_Power",
-    "Win32_Storage_FileSystem"
+    "Devices_Usb",
+    "Win32_Devices",
+    "Win32_Devices_DeviceAndDriverInstallation"
 ] }
 windows-core = "0.61.2"
 windows-registry = "0.5.2"
