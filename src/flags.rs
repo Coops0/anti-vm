@@ -1,7 +1,7 @@
 #! [allow(dead_code)]
 
 #[derive(Debug)]
-enum Level {
+pub enum Level {
     Tiny,
     Small,
     Medium,
@@ -73,10 +73,15 @@ impl Flags {
         self.bonuses.push(Level::EndAll);
     }
 
-    pub fn score(&self) -> i32 {
-        println!("penalties ({}) {:?}", self.penalties.len(), self.penalties);
-        println!("bonuses ({}) {:?}", self.bonuses.len(), self.bonuses);
+    pub fn penalties(&self) -> &[Level] {
+        &self.penalties
+    }
 
+    pub fn bonuses(&self) -> &[Level] {
+        &self.bonuses
+    }
+
+    pub fn score(&self) -> i32 {
         let penalty_score: i32 = self.penalties.iter().map(Level::value).sum();
         let bonus_score: i32 = self.bonuses.iter().map(Level::value).sum();
         bonus_score - penalty_score

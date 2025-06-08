@@ -1,17 +1,16 @@
 use crate::{
-    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation,
-    flags::Flags, sysinfo::score_sysinfo, usb_devices::score_usb_devices, util::inspect,
-    wifi_adapters::get_wifi_adapters_len,
+    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, util::inspect, wifi_adapters::get_wifi_adapters_len
 };
 
 mod battery;
 mod displays;
 mod first_logon_time;
-mod flags;
 mod sysinfo;
 mod usb_devices;
-mod util;
 mod wifi_adapters;
+mod system_devices;
+mod flags;
+mod util;
 
 // TODO check across many (real) systems
 // TODO check across virtual box, hyperv, (and maybe even UTM?)
@@ -49,7 +48,7 @@ fn main() -> anyhow::Result<()> {
         Err(_) => flags.medium_penalty(),
     };
 
-    match inspect("score displays", score_displays(&mut flags)) {
+    match inspect("displays", score_displays(&mut flags)) {
         Ok(()) => {}
         Err(_) => flags.large_penalty(),
     }
@@ -58,14 +57,20 @@ fn main() -> anyhow::Result<()> {
         flags.extreme_bonus();
     }
 
-    if inspect("score sysinfo", score_sysinfo(&mut flags)).is_err() {
+    if inspect("sysinfo", score_sysinfo(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
-    // This is very biased on my computer specifically since I only know my USB devices
     if inspect("usb devices", score_usb_devices(&mut flags)).is_err() {
         flags.large_penalty();
     }
+
+    if inspect("system devices", score_system_devices(&mut flags)).is_err() {
+        flags.large_penalty();
+    }
+
+    println!("penalties: {:?}", flags.penalties());
+    println!("bonuses: {:?}", flags.bonuses());
 
     println!("score: {}", flags.score());
 
