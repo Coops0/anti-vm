@@ -62,6 +62,7 @@ fn main() -> anyhow::Result<()> {
         flags.large_penalty();
     }
 
+    // This is very biased on my computer specifically since I only know my USB devices
     if inspect("usb devices", score_usb_devices(&mut flags)).is_err() {
         flags.large_penalty();
     }
