@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB Device Information Viewer - Detailed</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .stat-card p {
+            margin: 5px 0 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .controls input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 300px;
+        }
+        .controls button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .device-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .device-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .device-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .device-body {
+            padding: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+        .interfaces-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        .interfaces-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .interface-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .interface-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .interface-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .interface-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 13px;
+        }
+        .hex {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .none {
+            color: #999;
+            font-style: italic;
+        }
+        .speed-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .speed-high {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        .speed-full {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .compact-view {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .instance-id {
+            font-size: 11px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>USB Device Information Viewer</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Devices</h3>
+                <p id="totalDevices">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>High Speed</h3>
+                <p id="highSpeed">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Full Speed</h3>
+                <p id="fullSpeed">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>With Drivers</h3>
+                <p id="withDrivers">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Interfaces</h3>
+                <p id="totalInterfaces">0</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Search devices...">
+            <button onclick="toggleView()">Toggle Compact View</button>
+            <button onclick="exportData()">Export Full Data CSV</button>
+        </div>
+
+        <div id="detailedView" class="device-list"></div>
+        
+        <div id="compactView" class="compact-view">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Vendor ID</th>
+                        <th>Product ID</th>
+                        <th>Speed</th>
+                        <th>Driver</th>
+                        <th>Interfaces</th>
+                    </tr>
+                </thead>
+                <tbody id="compactTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const devices = [
+            {
+                bus_number: 0,
+                device_address: 2,
+                vendor_id: 0x1235,
+                product_id: 0x8210,
+                device_version: 0x0645,
+                class: 0xEF,
+                subclass: 0x02,
+                protocol: 0x01,
+                speed: "High",
+                manufacturer_string: null,
+                product_string: "Scarlett 2i2 USB",
+                serial_number: "P59Z3CA0784AA9",
+                instance_id: "USB\\VID_1235&PID_8210\\P59Z3CA0784AA9",
+                parent_instance_id: "USB\\ROOT_HUB30\\7&124f193f&0&0",
+                port_number: 2,
+                driver: "FocusriteUsb",
+                interfaces: []
+            },
+            {
+                bus_number: 0,
+                device_address: 4,
+                vendor_id: 0x3434,
+                product_id: 0xD030,
+                device_version: 0xD201,
+                class: 0x00,
+                subclass: 0x00,
+                protocol: 0x00,
+                speed: "Full",
+                manufacturer_string: null,
+                product_string: "Keychron Link ",
+                serial_number: null,
+                instance_id: "USB\\VID_3434&PID_D030\\7&276747B7&0&4",
+                parent_instance_id: "USB\\VID_1A40&PID_0101\\6&2838f1dc&0&1",
+                port_number: 4,
+                driver: "usbccgp",
+                interfaces: [
+                    { interface_number: 0, class: 0x03, subclass: 0x01, protocol: 0x02, interface_string: "Keychron Link " },
+                    { interface_number: 1, class: 0x03, subclass: 0x00, protocol: 0x00, interface_string: "Keychron Link " },
+                    { interface_number: 2, class: 0x03, subclass: 0x01, protocol: 0x01, interface_string: "Keychron Link " }
+                ]
+            },
+            {
+                bus_number: 0,
+                device_address: 1,
+                vendor_id: 0x046D,
+                product_id: 0x0825,
+                device_version: 0x0012,
+                class: 0xEF,
+                subclass: 0x02,
+                protocol: 0x01,
+                speed: "High",
+                manufacturer_string: null,
+                product_string: null,
+                serial_number: "F24E2B80",
+                instance_id: "USB\\VID_046D&PID_0825\\F24E2B80",
+                parent_instance_id: "USB\\ROOT_HUB30\\7&124f193f&0&0",
+                port_number: 1,
+                driver: "usbccgp",
+                interfaces: [
+                    { interface_number: 0, class: 0x0E, subclass: 0x03, protocol: 0x00, interface_string: null },
+                    { interface_number: 2, class: 0x01, subclass: 0x02, protocol: 0x00, interface_string: null }
+                ]
+            },
+            {
+                bus_number: 0,
+                device_address: 2,
+                vendor_id: 0x048D,
+                product_id: 0x8297,
+                device_version: 0x0003,
+                class: 0x00,
+                subclass: 0x00,
+                protocol: 0x00,
+                speed: "Full",
+                manufacturer_string: null,
+                product_string: "ITE Device(8595)",
+                serial_number: null,
+                instance_id: "USB\\VID_048D&PID_8297\\8&2EFE0359&0&4",
+                parent_instance_id: "USB\\ROOT_HUB30\\7&18eea21b&0&0",
+                port_number: 4,
+                driver: "HidUsb",
+                interfaces: []
+            },
+            {
+                bus_number: 0,
+                device_address: 5,
+                vendor_id: 0x1B1C,
+                product_id: 0x0C0B,
+                device_version: 0x000A,
+                class: 0x00,
+                subclass: 0x00,
+                protocol: 0x00,
+                speed: "Full",
+                manufacturer_string: null,
+                product_string: "Lighting Node PRO",
+                serial_number: "29700003A6047BAF00B65F5F051C00F5",
+                instance_id: "USB\\VID_1B1C&PID_0C0B\\29700003A6047BAF00B65F5F051C00F5",
+                parent_instance_id: "USB\\VID_05E3&PID_0608\\8&29c54ea8&0&6",
+                port_number: 3,
+                driver: "HidUsb",
+                interfaces: []
+            },
+            {
+                bus_number: 0,
+                device_address: 2,
+                vendor_id: 0x19F5,
+                product_id: 0x3247,
+                device_version: 0x0209,
+                class: 0x00,
+                subclass: 0x00,
+                protocol: 0x00,
+                speed: "Full",
+                manufacturer_string: null,
+                product_string: "NuPhy Air75 V2 Dongle",
+                serial_number: null,
+                instance_id: "USB\\VID_19F5&PID_3247\\7&276747B7&0&1",
+                parent_instance_id: "USB\\VID_1A40&PID_0101\\6&2838f1dc&0&1",
+                port_number: 1,
+                driver: "usbccgp",
+                interfaces: [
+                    { interface_number: 0, class: 0x03, subclass: 0x01, protocol: 0x01, interface_string: "NuPhy Air75 V2 Dongle" },
+                    { interface_number: 1, class: 0x03, subclass: 0x00, protocol: 0x01, interface_string: "NuPhy Air75 V2 Dongle" },
+                    { interface_number: 2, class: 0x03, subclass: 0x00, protocol: 0x00, interface_string: "NuPhy Air75 V2 Dongle" }
+                ]
+            },
+            {
+                bus_number: 0,
+                device_address: 3,
+                vendor_id: 0x8087,
+                product_id: 0x0025,
+                device_version: 0x0002,
+                class: 0xE0,
+                subclass: 0x01,
+                protocol: 0x01,
+                speed: "Full",
+                manufacturer_string: null,
+                product_string: null,
+                serial_number: null,
+                instance_id: "USB\\VID_8087&PID_0025\\8&29C54EA8&0&5",
+                parent_instance_id: "USB\\ROOT_HUB30\\7&124f193f&0&0",
+                port_number: 5,
+                driver: "BTHUSB",
+                interfaces: []
+            },
+            {
+                bus_number: 0,
+                device_address: 3,
+                vendor_id: 0x046D,
+                product_id: 0xC539,
+                device_version: 0x3906,
+                class: 0x00,
+                subclass: 0x00,
+                protocol: 0x00,
+                speed: "Full",
+                manufacturer_string: null,
+                product_string: "USB Receiver",
+                serial_number: null,
+                instance_id: "USB\\VID_046D&PID_C539\\7&276747B7&0&3",
+                parent_instance_id: "USB\\VID_1A40&PID_0101\\6&2838f1dc&0&1",
+                port_number: 3,
+                driver: "usbccgp",
+                interfaces: [
+                    { interface_number: 0, class: 0x03, subclass: 0x01, protocol: 0x01, interface_string: "USB Receiver" },
+                    { interface_number: 1, class: 0x03, subclass: 0x01, protocol: 0x02, interface_string: "USB Receiver" },
+                    { interface_number: 2, class: 0x03, subclass: 0x00, protocol: 0x00, interface_string: "USB Receiver" }
+                ]
+            }
+        ];
+
+        let currentView = 'detailed';
+
+        function formatHex(value) {
+            return `<span class="hex">0x${value.toString(16).toUpperCase().padStart(4, '0')}</span>`;
+        }
+
+        function formatValue(value) {
+            return value ? value : '<span class="none">None</span>';
+        }
+
+        function updateStats() {
+            document.getElementById('totalDevices').textContent = devices.length;
+            document.getElementById('highSpeed').textContent = devices.filter(d => d.speed === 'High').length;
+            document.getElementById('fullSpeed').textContent = devices.filter(d => d.speed === 'Full').length;
+            document.getElementById('withDrivers').textContent = devices.filter(d => d.driver).length;
+            
+            let totalInterfaces = 0;
+            devices.forEach(d => totalInterfaces += d.interfaces.length);
+            document.getElementById('totalInterfaces').textContent = totalInterfaces;
+        }
+
+        function renderDetailedView(filteredDevices = devices) {
+            const container = document.getElementById('detailedView');
+            container.innerHTML = '';
+
+            filteredDevices.forEach((device, index) => {
+                const deviceEl = document.createElement('div');
+                deviceEl.className = 'device-item';
+                
+                const title = device.product_string || 'Unknown Device';
+                
+                let interfacesHtml = '';
+                if (device.interfaces.length > 0) {
+                    interfacesHtml = `
+                        <div class="interfaces-section">
+                            <div class="interfaces-title">Interfaces (${device.interfaces.length})</div>
+                            <div class="interface-list">
+                                ${device.interfaces.map(iface => `
+                                    <div class="interface-item">
+                                        <div class="interface-header">Interface #${iface.interface_number}</div>
+                                        <div class="interface-details">
+                                            <div>
+                                                <span class="info-label">String:</span>
+                                                <span class="info-value">${formatValue(iface.interface_string)}</span>
+                                            </div>
+                                            <div>
+                                                <span class="info-label">Class:</span>
+                                                <span class="info-value">${formatHex(iface.class)}</span>
+                                            </div>
+                                            <div>
+                                                <span class="info-label">Subclass:</span>
+                                                <span class="info-value">${formatHex(iface.subclass)}</span>
+                                            </div>
+                                            <div>
+                                                <span class="info-label">Protocol:</span>
+                                                <span class="info-value">${formatHex(iface.protocol)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    interfacesHtml = `
+                        <div class="interfaces-section">
+                            <div class="interfaces-title">Interfaces</div>
+                            <div class="none">No interfaces</div>
+                        </div>
+                    `;
+                }
+                
+                deviceEl.innerHTML = `
+                    <div class="device-header">
+                        <div class="device-title">${title}</div>
+                        <span class="speed-badge speed-${device.speed.toLowerCase()}">${device.speed} Speed</span>
+                    </div>
+                    <div class="device-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Vendor ID</span>
+                                <span class="info-value">${formatHex(device.vendor_id)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Product ID</span>
+                                <span class="info-value">${formatHex(device.product_id)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Device Version</span>
+                                <span class="info-value">${formatHex(device.device_version)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Manufacturer</span>
+                                <span class="info-value">${formatValue(device.manufacturer_string)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Serial Number</span>
+                                <span class="info-value">${formatValue(device.serial_number)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Driver</span>
+                                <span class="info-value">${formatValue(device.driver)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Bus / Address</span>
+                                <span class="info-value">${device.bus_number} / ${device.device_address}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Port Number</span>
+                                <span class="info-value">${device.port_number}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Class</span>
+                                <span class="info-value">${formatHex(device.class)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Subclass</span>
+                                <span class="info-value">${formatHex(device.subclass)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Protocol</span>
+                                <span class="info-value">${formatHex(device.protocol)}</span>
+                            </div>
+                            <div class="info-item" style="grid-column: 1 / -1;">
+                                <span class="info-label">Instance ID</span>
+                                <span class="info-value" style="font-size: 12px;">${device.instance_id}</span>
+                            </div>
+                            <div class="info-item" style="grid-column: 1 / -1;">
+                                <span class="info-label">Parent Instance ID</span>
+                                <span class="info-value" style="font-size: 12px;">${device.parent_instance_id}</span>
+                            </div>
+                        </div>
+                        ${interfacesHtml}
+                    </div>
+                `;
+                
+                container.appendChild(deviceEl);
+            });
+        }
+
+        function renderCompactTable(filteredDevices = devices) {
+            const tbody = document.getElementById('compactTableBody');
+            tbody.innerHTML = '';
+
+            filteredDevices.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatValue(device.product_string)}</td>
+                    <td>${formatHex(device.vendor_id)}</td>
+                    <td>${formatHex(device.product_id)}</td>
+                    <td><span class="speed-badge speed-${device.speed.toLowerCase()}">${device.speed}</span></td>
+                    <td>${formatValue(device.driver)}</td>
+                    <td>${device.interfaces.length}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function toggleView() {
+            const detailedView = document.getElementById('detailedView');
+            const compactView = document.getElementById('compactView');
+            
+            if (currentView === 'detailed') {
+                detailedView.style.display = 'none';
+                compactView.style.display = 'block';
+                currentView = 'compact';
+                renderCompactTable();
+            } else {
+                detailedView.style.display = 'flex';
+                compactView.style.display = 'none';
+                currentView = 'detailed';
+            }
+        }
+
+        function filterDevices() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = devices.filter(device => {
+                const searchableText = [
+                    device.product_string,
+                    device.manufacturer_string,
+                    device.serial_number,
+                    device.driver,
+                    device.vendor_id.toString(16),
+                    device.product_id.toString(16),
+                    device.instance_id,
+                    ...device.interfaces.map(i => i.interface_string)
+                ].filter(Boolean).join(' ').toLowerCase();
+                
+                return searchableText.includes(searchTerm);
+            });
+            
+            if (currentView === 'detailed') {
+                renderDetailedView(filtered);
+            } else {
+                renderCompactTable(filtered);
+            }
+        }
+
+        function exportData() {
+            let csv = 'Device,Vendor ID,Product ID,Version,Manufacturer,Serial,Speed,Driver,Bus,Address,Port,Class,Subclass,Protocol,Instance ID,Parent Instance ID,Interface Count\n';
+            
+            devices.forEach(device => {
+                csv += `"${device.product_string || 'Unknown'}",`;
+                csv += `"0x${device.vendor_id.toString(16).toUpperCase()}",`;
+                csv += `"0x${device.product_id.toString(16).toUpperCase()}",`;
+                csv += `"0x${device.device_version.toString(16).toUpperCase()}",`;
+                csv += `"${device.manufacturer_string || ''}",`;
+                csv += `"${device.serial_number || ''}",`;
+                csv += `"${device.speed}",`;
+                csv += `"${device.driver || ''}",`;
+                csv += `${device.bus_number},${device.device_address},${device.port_number},`;
+                csv += `"0x${device.class.toString(16).toUpperCase()}",`;
+                csv += `"0x${device.subclass.toString(16).toUpperCase()}",`;
+                csv += `"0x${device.protocol.toString(16).toUpperCase()}",`;
+                csv += `"${device.instance_id}",`;
+                csv += `"${device.parent_instance_id}",`;
+                csv += `${device.interfaces.length}\n`;
+            });
+            
+            csv += '\n\nInterface Details\n';
+            csv += 'Device,Interface Number,Interface String,Class,Subclass,Protocol\n';
+            
+            devices.forEach(device => {
+                if (device.interfaces.length > 0) {
+                    device.interfaces.forEach(iface => {
+                        csv += `"${device.product_string || 'Unknown'}",`;
+                        csv += `${iface.interface_number},`;
+                        csv += `"${iface.interface_string || ''}",`;
+                        csv += `"0x${iface.class.toString(16).toUpperCase()}",`;
+                        csv += `"0x${iface.subclass.toString(16).toUpperCase()}",`;
+                        csv += `"0x${iface.protocol.toString(16).toUpperCase()}"\n`;
+                    });
+                }
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'usb_devices_full.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterDevices);
+
+        updateStats();
+        renderDetailedView();
+    </script>
+</body>
+</html>

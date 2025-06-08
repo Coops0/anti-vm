@@ -8,6 +8,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.98"
 chrono = "0.4.41"
+nusb = "0.1.14"
 windows = { version = "0.61.1", features = [
     "Foundation",
     "Globalization_DateTimeFormatting",
@@ -28,7 +29,9 @@ windows = { version = "0.61.1", features = [
     "System_Power",
     "Devices_Usb",
     "Win32_Devices",
-    "Win32_Devices_DeviceAndDriverInstallation"
+    "Win32_Devices_DeviceAndDriverInstallation",
+    "Win32_System_Com",
+    "Win32_Security"
 ] }
 windows-collections = "0.2.0"
 windows-core = "0.61.2"

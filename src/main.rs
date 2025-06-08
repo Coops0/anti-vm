@@ -1,15 +1,17 @@
 use crate::{
-    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, sysinfo::score_sysinfo, usb_devices::get_usb_devices, util::inspect, wifi_adapters::get_wifi_adapters_len
+    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation,
+    flags::Flags, sysinfo::score_sysinfo, usb_devices::score_usb_devices, util::inspect,
+    wifi_adapters::get_wifi_adapters_len,
 };
 
 mod battery;
 mod displays;
 mod first_logon_time;
 mod flags;
-mod wifi_adapters;
 mod sysinfo;
 mod usb_devices;
 mod util;
+mod wifi_adapters;
 
 // TODO check across many (real) systems
 // TODO check across virtual box, hyperv, (and maybe even UTM?)
@@ -60,7 +62,9 @@ fn main() -> anyhow::Result<()> {
         flags.large_penalty();
     }
 
-    inspect("usb devices", get_usb_devices())?;
+    if inspect("usb devices", score_usb_devices(&mut flags)).is_err() {
+        flags.large_penalty();
+    }
 
     println!("score: {}", flags.score());
 

@@ -74,8 +74,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     const EST_WINDOWS_DIR_SIZE_GIG: u64 = 16;
     let used_space_minus_windows_installation = disk_space
         .total_space_gig
-        .checked_sub(disk_space.free_space_gig + EST_WINDOWS_DIR_SIZE_GIG)
-        .unwrap_or(0);
+        .saturating_sub(disk_space.free_space_gig + EST_WINDOWS_DIR_SIZE_GIG);
 
     println!("used space minus windows installation: {used_space_minus_windows_installation}GB");
 

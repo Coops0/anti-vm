@@ -6,8 +6,8 @@ pub fn inspect<T: std::fmt::Debug>(name: &str, value: T) -> T {
     value
 }
 
-pub fn get_devices_iter<'a>(
-    selector: &'a HSTRING,
+pub fn get_devices_iter(
+    selector: &HSTRING,
 ) -> anyhow::Result<impl Iterator<Item = DeviceInformation> + 'static + use<>>  {
     let devices_collection =
         DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(
