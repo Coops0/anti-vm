@@ -1,4 +1,5 @@
 use windows::Devices::Usb::UsbDeviceDescriptor;
+use windows::Foundation::{GuidHelper, IPropertyValue, IReference};
 use windows::Win32::Devices::DeviceAndDriverInstallation;
 use windows::{
     Devices::{
@@ -7,26 +8,176 @@ use windows::{
     },
     Win32::Devices::DeviceAndDriverInstallation::*,
 };
+use windows_collections::IIterable;
 use windows_core::{GUID, HSTRING, Interface, h, w};
 
 use crate::util::get_devices_iter;
 
 pub fn get_usb_devices() -> anyhow::Result<usize> {
-    let mut devices = GUIDS
+    // let mut devices = GUIDS
+    //     .iter()
+    //     .filter_map(|guid| UsbDevice::GetDeviceSelectorGuidOnly(*guid).ok())
+    //     .filter_map(|selector| get_devices_iter(&selector).ok())
+    //     .flatten()
+    //     .collect::<Vec<_>>();
+
+    let properties: IIterable<HSTRING> = REQUESTED_PROPERTIES
         .iter()
-        .filter_map(|guid| UsbDevice::GetDeviceSelectorGuidOnly(*guid).ok())
-        .filter_map(|selector| get_devices_iter(&selector).ok())
-        .flatten()
-        .collect::<Vec<_>>();
+        .map(|s| HSTRING::from(*s))
+        .collect::<Vec<HSTRING>>()
+        .into();
 
-    devices.dedup_by(|a, b| a.Id() == b.Id());
+    let devices_collection =
+        DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(
+            &HSTRING::new(),
+            &properties,
+            DeviceInformationKind::DeviceInterface,
+        )?
+        .get()?;
 
-    for device in devices {
-        println!("Device: {:?}", device);
+    let devices_size = devices_collection.Size()? as usize;
+    if devices_size == 0 {
+        return Ok(0);
     }
+
+    let mut devices = vec![None; devices_size];
+    devices_collection.GetMany(0, &mut devices)?;
+
+    println!("Found {} USB devices", devices_size);
+
+    for device in devices.into_iter().flatten() {
+        let Ok(properties) = device.Properties() else {
+            continue;
+        };
+
+            println!("----");
+        for property in properties.into_iter() {
+            let Ok(key) = property.Key() else {
+                continue;
+            };
+
+            let Ok(value) = property.Value() else {
+                continue;
+            };
+
+            println!("property {key:?} {}", value.GetRuntimeClassName().unwrap_or_default());
+
+            let value = match value.cast::<IReference<HSTRING>>().and_then(|v| v.Value()) {
+                Ok(value) => value,
+                Err(why) => {
+                    continue;
+                }
+            };
+
+            println!("Property: {key:?} = {}", value.to_string_lossy());
+        }
+
+        // let protocol_id = match properties.Lookup(h!("System.Devices.Aep.ProtocolId")) {
+        //     Ok(protocol_id) => protocol_id,
+        //     Err(why) => {
+        //         println!("Failed to get ProtocolId: {why:?}");
+        //         continue;
+        //     }
+        // };
+
+        // println!("pass");
+
+        // let protocol_id = match protocol_id.cast::<IReference<GUID>>() {
+        //     Ok(protocol_id) => protocol_id,
+        //     Err(why) => {
+        //         println!("Failed to cast ProtocolId: {why:?}");
+        //         continue;
+        //     }
+        // };
+
+        // println!("{protocol_id:?}");
+    }
+
+    // devices.dedup_by(|a, b| a.Id() == b.Id());
+
+    // for device in devices {
+    //     println!("Device: {:?}", device);
+    // }
 
     Ok(0)
 }
+
+// using System;
+// using System.Collections.Generic;
+// using System.Management; // reference required
+
+// namespace cSharpUtilities
+// {
+//     class UsbBrowser
+//     {
+
+//         public static void PrintUsbDevices()
+//         {
+//             IList<ManagementBaseObject> usbDevices = GetUsbDevices();
+
+//             foreach (ManagementBaseObject usbDevice in usbDevices)
+//             {
+//                 Console.WriteLine("----- DEVICE -----");
+//                 foreach (var property in usbDevice.Properties)
+//                 {
+//                     Console.WriteLine(string.Format("{0}: {1}", property.Name, property.Value));
+//                 }
+//                 Console.WriteLine("------------------");
+//             }
+//         }
+
+//         public static IList<ManagementBaseObject> GetUsbDevices()
+//         {
+//             IList<string> usbDeviceAddresses = LookUpUsbDeviceAddresses();
+
+//             List<ManagementBaseObject> usbDevices = new List<ManagementBaseObject>();
+
+//             foreach (string usbDeviceAddress in usbDeviceAddresses)
+//             {
+//                 // query MI for the PNP device info
+//                 // address must be escaped to be used in the query; luckily, the form we extracted previously is already escaped
+//                 ManagementObjectCollection curMoc = QueryMi("Select * from Win32_PnPEntity where PNPDeviceID = " + usbDeviceAddress);
+//                 foreach (ManagementBaseObject device in curMoc)
+//                 {
+//                     usbDevices.Add(device);
+//                 }
+//             }
+
+//             return usbDevices;
+//         }
+
+//         public static IList<string> LookUpUsbDeviceAddresses()
+//         {
+//             // this query gets the addressing information for connected USB devices
+//             ManagementObjectCollection usbDeviceAddressInfo = QueryMi(@"Select * from Win32_USBControllerDevice");
+
+//             List<string> usbDeviceAddresses = new List<string>();
+
+//             foreach(var device in usbDeviceAddressInfo)
+//             {
+//                 string curPnpAddress = (string)device.GetPropertyValue("Dependent");
+//                 // split out the address portion of the data; note that this includes escaped backslashes and quotes
+//                 curPnpAddress = curPnpAddress.Split(new String[] { "DeviceID=" }, 2, StringSplitOptions.None)[1];
+
+//                 usbDeviceAddresses.Add(curPnpAddress);
+//             }
+
+//             return usbDeviceAddresses;
+//         }
+
+//         // run a query against Windows Management Infrastructure (MI) and return the resulting collection
+//         public static ManagementObjectCollection QueryMi(string query)
+//         {
+//             ManagementObjectSearcher managementObjectSearcher = new ManagementObjectSearcher(query);
+//             ManagementObjectCollection result = managementObjectSearcher.Get();
+
+//             managementObjectSearcher.Dispose();
+//             return result;
+//         }
+
+//     }
+
+// }
 
 const GUIDS: &[GUID] = &[
     GUID_BUS_RESOURCE_UPDATE_INTERFACE,

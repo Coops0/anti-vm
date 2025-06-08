@@ -20,6 +20,7 @@ mod util;
 
 // TODO strip binary with build step too
 // TODO setup clippy checks
+// TODO timing test each
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();
 
