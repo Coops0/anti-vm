@@ -1,0 +1,182 @@
+// DONE
+[HKEY_LOCAL_MACHINE\BCD00000000\Objects\{2c6bd1b8-fcaf-11ef-b1b9-b5f21293fd47}\Elements\12000004]
+"Element"="EFI VMware Virtual SCSI Hard Drive (0.0)"
+
+// DONE
+[HKEY_LOCAL_MACHINE\BCD00000000\Objects\{2c6bd1b9-fcaf-11ef-b1b9-b5f21293fd47}\Elements\12000004]
+"Element"="EFI VMware Virtual SATA CDROM Drive (1.0)"
+
+// DONE
+[HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\BIOS]
+"BIOSVendor"="VMware, Inc."
+"BIOSVersion"="VMW201.00V.24006586.B64.2406042154"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\DriverOperations\1\1714]
+"Identity"="dual_vmxnet3.inf, Culture=neutral, Type=dualModeDriver, Version=10.0.26100.1, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=amd64, versionScope=NonSxS"
+"Inf"="vmxnet3.inf"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000]
+"DriverDesc"="Microsoft Basic Display Adapter"
+"HardwareInformation.ChipType"="VMware"
+"HardwareInformation.DacType"="VMware"
+"HardwareInformation.AdapterString"="Microsoft Basic Display Adapter"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\DeviceClasses\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#Disk&Ven_VMware_&Prod_VMware_Virtual_S#5&1ec51bf7&0&000000#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}]
+"DeviceInstance"="SCSI\\Disk&Ven_VMware_&Prod_VMware_Virtual_S\\5&1ec51bf7&0&000000"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\DeviceContainers\{00000000-0000-0000-FFFF-FFFFFFFFFFFF}\BaseContainers\{00000000-0000-0000-FFFF-FFFFFFFFFFFF}]
+"SWD\\COMPUTER\\MFG_VMware__Inc.&PROD_VMware20_1"=hex(0):
+"SCSI\\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\\5&260e6d66&0&010000"=hex(0):
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\SecureBoot\Servicing\DeviceAttributes]
+"OEMManufacturerName"="Gigabyte Technology Co., Ltd."
+"BaseBoardManufacturer"="Intel Corporation"
+"FirmwareManufacturer"="VMware, Inc."
+"OEMModelBaseBoard"="440BX Desktop Reference Platform"
+"OEMModelNumber"="X570 AORUS ELITE WIFI"
+"OEMName"="Gigabyte Technology Co., Ltd."
+"OSArchitecture"="AMD64"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Video\{35B4EA8F-FCAF-11EF-BDD8-806E6F6E6963}\0000]
+"DriverDesc"="Microsoft Basic Display Adapter"
+"HardwareInformation.ChipType"="VMware"
+"HardwareInformation.DacType"="VMware"
+"HardwareInformation.AdapterString"="Microsoft Basic Display Adapter"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\PCI\VEN_15AD&DEV_0740&SUBSYS_074015AD&REV_10\3&61aaa01&0&3F]
+"DeviceDesc"="@oem1.inf,%loc.vmwarebusdevicedesc%;VMware VMCI Bus Device"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\5&260e6d66&0&010000]
+"DeviceDesc"="@cdrom.inf,%gencdrom_devdesc%;CD-ROM Drive"
+"FriendlyName"="NECVMWar VMware SATA CD01"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S\5&1ec51bf7&0&000000]
+"FriendlyName"="VMware, VMware Virtual S SCSI Disk Device"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\vmci]
+"DisplayName"="@oem1.inf,%loc.vmciServiceDisplayName%;VMware VMCI Bus Driver"
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\pvscsii.inf_amd64_9aaa769bfa6923b1]
+"Provider"="VMware, Inc."
+[HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\pvscsii.inf_amd64_9aaa769bfa6923b1\Descriptors\PCI\VEN_15AD&DEV_07C0]
+"Manufacturer"="%vmware%"
+[HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\pvscsii.inf_amd64_9aaa769bfa6923b1\Strings]
+"device"="VMware PVSCSI Controller"
+"vmware"="VMware, Inc."
+
+// DONE
+[HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\vmci.inf_amd64_72a1c95f9120db75\Descriptors\PCI\VEN_15AD&DEV_0740]
+"Configuration"="vmci.install.x64.NT"
+"Description"="%loc.vmwarebusdevicedesc%"
+[HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\vmci.inf_amd64_72a1c95f9120db75\Descriptors\PCI\VEN_15AD&DEV_0740&SUBSYS_074015AD]
+"Configuration"="vmci.install.x64.NT"
+"Description"="%loc.vmwarebusdevicedesc%"
+[HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\vmci.inf_amd64_72a1c95f9120db75\Strings]
+"loc.vmwarebusdevicedesc"="VMware VMCI Bus Device"
+
+// Done
+[HKEY_LOCAL_MACHINE\SYSTEM\HardwareConfig\{fed94d56-fdf8-7d3d-659e-15eb6b73a5d6}]
+"SystemManufacturer"="Gigabyte Technology Co., Ltd."
+"SystemProductName"="X570 AORUS ELITE WIFI"
+"BIOSVendor"="VMware, Inc."
+"BIOSReleaseDate"="06/04/2024"
+[HKEY_LOCAL_MACHINE\SYSTEM\HardwareConfig\{fed94d56-fdf8-7d3d-659e-15eb6b73a5d6}\ComputerIds]
+"{833dbbda-9239-53e0-bb57-b4ed24f2402d}"="Gigabyte Technology Co., Ltd.&&X570 AORUS ELITE WIFI&VMware, Inc.&VMW201.00V.24006586.B64.2406042154&ff&ff"
+"{0333ff9b-40a6-5993-b20d-636aa3192bb3}"="Gigabyte Technology Co., Ltd.&X570 AORUS ELITE WIFI&VMware, Inc.&VMW201.00V.24006586.B64.2406042154&ff&ff"
+[HKEY_LOCAL_MACHINE\SYSTEM\HardwareConfig\Current]
+"SystemManufacturer"="Gigabyte Technology Co., Ltd."
+"SystemProductName"="X570 AORUS ELITE WIFI"
+"BIOSVendor"="VMware, Inc."
+[HKEY_LOCAL_MACHINE\SYSTEM\HardwareConfig\Current\ComputerIds]
+"{833dbbda-9239-53e0-bb57-b4ed24f2402d}"="Gigabyte Technology Co., Ltd.&&X570 AORUS ELITE WIFI&VMware, Inc.&VMW201.00V.24006586.B64.2406042154&ff&ff"
+"{0333ff9b-40a6-5993-b20d-636aa3192bb3}"="Gigabyte Technology Co., Ltd.&X570 AORUS ELITE WIFI&VMware, Inc.&VMW201.00V.24006586.B64.2406042154&ff&ff"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000]
+"DriverDesc"="Microsoft Basic Display Adapter"
+"HardwareInformation.ChipType"="VMware"
+"HardwareInformation.DacType"="VMware"
+"HardwareInformation.AdapterString"="Microsoft Basic Display Adapter"
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{4d36e97d-e325-11ce-bfc1-08002be10318}\0130]
+"DriverDesc"="Microsoft Basic Display Driver"
+""HardwareInformation.ChipType"="VMware"
+"HardwareInformation.DacType"="VMware"
+"HardwareInformation.AdapterString"="Microsoft Basic Display Driver"
+
+// device classes vvv
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#Disk&Ven_VMware_&Prod_VMware_Virtual_S#5&1ec51bf7&0&000000#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}]
+"DeviceInstance"="SCSI\\Disk&Ven_VMware_&Prod_VMware_Virtual_S\\5&1ec51bf7&0&000000"
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#Disk&Ven_VMware_&Prod_VMware_Virtual_S#5&1ec51bf7&0&000000#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\#]
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f56308-b6bf-11d0-94f2-00a0c91efb8b}]
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f56308-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01#5&260e6d66&0&010000#{53f56308-b6bf-11d0-94f2-00a0c91efb8b}]
+"DeviceInstance"="SCSI\\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\\5&260e6d66&0&010000"
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f56308-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01#5&260e6d66&0&010000#{53f56308-b6bf-11d0-94f2-00a0c91efb8b}\#]
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}]
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01#5&260e6d66&0&010000#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}]
+"DeviceInstance"="SCSI\\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\\5&260e6d66&0&010000"
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\##?#SCSI#CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01#5&260e6d66&0&010000#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\#]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceContainers\{00000000-0000-0000-FFFF-FFFFFFFFFFFF}\BaseContainers\{00000000-0000-0000-FFFF-FFFFFFFFFFFF}]
+"SWD\\COMPUTER\\MFG_VMware__Inc.&PROD_VMware20_1"=hex(0):
+"SCSI\\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\\5&260e6d66&0&010000"=hex(0):
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceContainers\{35b4ea52-fcaf-11ef-bdd8-806e6f6e6963}\BaseContainers\{35b4ea52-fcaf-11ef-bdd8-806e6f6e6963}]
+"SCSI\\Disk&Ven_VMware_&Prod_VMware_Virtual_S\\5&1ec51bf7&0&000000"=hex(0):
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing\DeviceAttributes]
+"OEMManufacturerName"="Gigabyte Technology Co., Ltd."
+"BaseBoardManufacturer"="Intel Corporation"
+"FirmwareManufacturer"="VMware, Inc."
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Video\{35B4EA8F-FCAF-11EF-BDD8-806E6F6E6963}\0000]
+"DriverDesc"="Microsoft Basic Display Adapter"
+"HardwareInformation.ChipType"="VMware"
+"HardwareInformation.DacType"="VMware"
+"HardwareInformation.AdapterString"="Microsoft Basic Display Adapter"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\PCI\VEN_15AD&DEV_0740&SUBSYS_074015AD&REV_10\3&61aaa01&0&3F]
+"DeviceDesc"="@oem1.inf,%loc.vmwarebusdevicedesc%;VMware VMCI Bus Device"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\5&260e6d66&0&010000]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\5&260e6d66&0&010000]
+"FriendlyName"="NECVMWar VMware SATA CD01"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\5&260e6d66&0&010000\Device Parameters]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01\5&260e6d66&0&010000\Device Parameters\Storport]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S\5&1ec51bf7&0&000000]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S\5&1ec51bf7&0&000000]
+"FriendlyName"="VMware, VMware Virtual S SCSI Disk Device"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S\5&1ec51bf7&0&000000\Device Parameters]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S\5&1ec51bf7&0&000000\Device Parameters\Partmgr]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_VMware_&Prod_VMware_Virtual_S\5&1ec51bf7&0&000000\Device Parameters\Storport]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\SWD\COMPUTER\MFG_VMware__Inc.&PROD_VMware20_1]
+"DeviceDesc"="@compdev.inf,%compdev.devicedesc%;Computer Device"
+"ClassGUID"="{4d36e966-e325-11ce-bfc1-08002be10318}"
+"Driver"="{4d36e966-e325-11ce-bfc1-08002be10318}\\0001"
+"Mfg"="@compdev.inf,%msft%;Microsoft"
+"FriendlyName"="VMware, Inc. VMware20,1"
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\vmci]
+"DisplayName"="@oem1.inf,%loc.vmciServiceDisplayName%;VMware VMCI Bus Driver"

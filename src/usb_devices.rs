@@ -64,6 +64,7 @@ fn score_device(dev: &DeviceInfo, flags: &mut Flags) {
         flags.medium_bonus();
     }
 
+    #[allow(clippy::collapsible_if)]
     if let Some(product) = dev.product_string() {
         if product.contains("VMware") || product.contains("VirtualBox") {
             flags.end_all_penalty();
@@ -78,6 +79,7 @@ fn score_device(dev: &DeviceInfo, flags: &mut Flags) {
         flags.end_all_penalty();
     }
 
+    #[allow(clippy::collapsible_if)]
     if let Some(driver) = dev.driver() {
         if driver == "FocusriteUsb" {
             flags.large_bonus();

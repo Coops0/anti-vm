@@ -11,7 +11,7 @@ pub enum Level {
 }
 
 impl Level {
-    fn value(&self) -> i32 {
+    fn value(&self) -> i64 {
         match self {
             Level::Tiny => 1,
             Level::Small => 3,
@@ -81,9 +81,9 @@ impl Flags {
         &self.bonuses
     }
 
-    pub fn score(&self) -> i32 {
-        let penalty_score: i32 = self.penalties.iter().map(Level::value).sum();
-        let bonus_score: i32 = self.bonuses.iter().map(Level::value).sum();
+    pub fn score(&self) -> i64 {
+        let penalty_score: i64 = self.penalties.iter().map(Level::value).sum();
+        let bonus_score: i64 = self.bonuses.iter().map(Level::value).sum();
         bonus_score - penalty_score
     }
 }
