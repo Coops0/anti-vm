@@ -29,6 +29,7 @@ pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 struct PciDevice {
     class_guid: String,
     device_desc: String, // ...VMware VMCI Bus Device

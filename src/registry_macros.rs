@@ -1,11 +1,9 @@
 use crate::flags::{Flags, Level};
 
-// Core types for registry checking
 pub struct RegistryRule {
     pub path: &'static str,
     pub checks: Vec<Check>,
 }
-
 pub enum Check {
     StringEquals {
         key: &'static str,
@@ -49,7 +47,6 @@ pub enum Check {
     },
 }
 
-// Helper macros for building checks
 #[macro_export]
 macro_rules! eq {
     ($key:literal, $value:literal => $level:ident) => {
@@ -166,8 +163,10 @@ pub fn execute_checks(
                 value,
                 penalty,
             } => {
-                if let Ok(v) = key.get_string(k) && v.eq_ignore_ascii_case(value) {
-                        flags.penalty(*penalty);
+                if let Ok(v) = key.get_string(k)
+                    && v.eq_ignore_ascii_case(value)
+                {
+                    flags.penalty(*penalty);
                 }
             }
             Check::StringStartsWith {
@@ -175,8 +174,10 @@ pub fn execute_checks(
                 value,
                 penalty,
             } => {
-                if let Ok(v) = key.get_string(k) && v.to_lowercase().starts_with(&value.to_lowercase()) {
-                        flags.penalty(*penalty);
+                if let Ok(v) = key.get_string(k)
+                    && v.to_lowercase().starts_with(&value.to_lowercase())
+                {
+                    flags.penalty(*penalty);
                 }
             }
             Check::StringContains {
@@ -184,8 +185,10 @@ pub fn execute_checks(
                 value,
                 penalty,
             } => {
-                if let Ok(v) = key.get_string(k) && v.to_lowercase().contains(&value.to_lowercase()){
-                        flags.penalty(*penalty);
+                if let Ok(v) = key.get_string(k)
+                    && v.to_lowercase().contains(&value.to_lowercase())
+                {
+                    flags.penalty(*penalty);
                 }
             }
             Check::StringEqualsAny {
