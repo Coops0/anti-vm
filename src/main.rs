@@ -1,19 +1,19 @@
 use crate::{
-    battery::get_battery, displays::score_displays, flags::Flags, os::score_os,
-    registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices,
-    usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len,
+    activated::check_is_activated, battery::get_battery, displays::score_displays, flags::Flags, graphics_card::check_if_graphics_card, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
 };
 
 mod activated;
 mod battery;
 mod displays;
 mod flags;
+mod local;
 mod os;
 mod registry;
 mod registry_macros;
 mod sysinfo;
 mod system_devices;
 mod usb_devices;
+mod graphics_card;
 mod util;
 mod wifi_adapters;
 
@@ -64,6 +64,21 @@ fn main() -> anyhow::Result<()> {
     }
 
     if inspect!("registry", score_registry(&mut flags)).is_err() {
+        flags.large_penalty();
+    }
+
+    if inspect!("local account", get_is_local_account()).unwrap_or_default() {
+        flags.medium_penalty();
+    } else {
+        flags.large_bonus();
+    }
+
+    if !inspect!("activated", check_is_activated()).unwrap_or_default() {
+        flags.medium_penalty();
+    }
+
+    // this can be spoofed
+    if !inspect!("graphics card", check_if_graphics_card()).unwrap_or_default() {
         flags.large_penalty();
     }
 
