@@ -1,6 +1,6 @@
 #! [allow(dead_code)]
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Level {
     Tiny,
     Small,
@@ -36,41 +36,49 @@ impl Flags {
         }
     }
 
+    pub fn penalty(&mut self, level: Level) {
+        self.penalties.push(level);
+    }
+
+    pub fn bonus(&mut self, level: Level) {
+        self.bonuses.push(level);
+    }
+
     pub fn tiny_penalty(&mut self) {
-        self.penalties.push(Level::Tiny);
+        self.penalty(Level::Tiny);
     }
     pub fn small_penalty(&mut self) {
-        self.penalties.push(Level::Small);
+        self.penalty(Level::Small);
     }
     pub fn medium_penalty(&mut self) {
-        self.penalties.push(Level::Medium);
+        self.penalty(Level::Medium);
     }
     pub fn large_penalty(&mut self) {
-        self.penalties.push(Level::Large);
+        self.penalty(Level::Large);
     }
     pub fn extreme_penalty(&mut self) {
-        self.penalties.push(Level::Extreme);
+        self.penalty(Level::Extreme);
     }
     pub fn end_all_penalty(&mut self) {
-        self.penalties.push(Level::EndAll);
+        self.penalty(Level::EndAll);
     }
     pub fn tiny_bonus(&mut self) {
-        self.bonuses.push(Level::Tiny);
+        self.bonus(Level::Tiny);
     }
     pub fn small_bonus(&mut self) {
-        self.bonuses.push(Level::Small);
+        self.bonus(Level::Small);
     }
     pub fn medium_bonus(&mut self) {
-        self.bonuses.push(Level::Medium);
+        self.bonus(Level::Medium);
     }
     pub fn large_bonus(&mut self) {
-        self.bonuses.push(Level::Large);
+        self.bonus(Level::Large);
     }
     pub fn extreme_bonus(&mut self) {
-        self.bonuses.push(Level::Extreme);
+        self.bonus(Level::Extreme);
     }
     pub fn end_all_bonus(&mut self) {
-        self.bonuses.push(Level::EndAll);
+        self.bonus(Level::EndAll);
     }
 
     pub fn penalties(&self) -> &[Level] {

@@ -1,11 +1,6 @@
-use std::ptr::null;
 
 use windows::Devices::Enumeration::DeviceInformation;
-use windows::Win32::Devices::PortableDevices::{self, IPortableDeviceManager};
-use windows::Win32::System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance};
-use windows::core::GUID;
-use windows_core::PWSTR;
-use windows_registry::{Key, LOCAL_MACHINE};
+use windows_registry::LOCAL_MACHINE;
 
 use crate::flags::Flags;
 

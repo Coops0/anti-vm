@@ -5,7 +5,8 @@ use windows::Devices::Display::{
 use windows::Devices::Enumeration::DeviceInformation;
 
 use crate::flags::Flags;
-use crate::util::{get_devices_iter, inspect};
+use crate::inspect;
+use crate::util::{get_devices_iter};
 
 // TODO score adapters
 // DisplayAdapterId
@@ -42,7 +43,7 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
 fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Result<()> {
     let monitor = DisplayMonitor::FromInterfaceIdAsync(&device.Id()?)?.get()?;
 
-    match inspect("(init) physical connector", monitor.PhysicalConnector())? {
+    match inspect!("(init) physical connector", monitor.PhysicalConnector())? {
         DisplayMonitorPhysicalConnectorKind::Unknown => {
             flags.large_penalty();
         }
@@ -72,7 +73,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => flags.large_penalty(),
     };
 
-    match inspect("connection kind", monitor.ConnectionKind()?) {
+    match inspect!("connection kind", monitor.ConnectionKind()?) {
         // Laptop
         DisplayMonitorConnectionKind::Internal => flags.medium_bonus(),
         DisplayMonitorConnectionKind::Wired => {}
@@ -81,7 +82,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => flags.medium_penalty(),
     };
 
-    match inspect("usage kind", monitor.UsageKind())? {
+    match inspect!("usage kind", monitor.UsageKind())? {
         DisplayMonitorUsageKind::Standard => {}
         // DisplayMonitorUsageKind::HeadMounted | DisplayMonitorUsageKind::SpecialPurpose{
         _ => flags.large_penalty(),
@@ -95,15 +96,15 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     }
 
     // VMware fails this
-    if inspect("display name", monitor.DisplayName())?.is_empty() {
+    if inspect!("display name", monitor.DisplayName())?.is_empty() {
         flags.large_penalty();
     }
 
     // "An error code of zero - S_OK - just means that the API returned a null pointer value on the ABI so there was no interface to populate the Ok variant of Result."
     // https://github.com/microsoft/windows-rs/issues/3322#issuecomment-2408606524
-    match inspect(
+    match inspect!(
         "physical size in in",
-        monitor.PhysicalSizeInInches().and_then(|s| s.GetSize()),
+        monitor.PhysicalSizeInInches().and_then(|s| s.GetSize())
     ) {
         Ok(_resolution) => {}
         Err(_err) => {
@@ -112,7 +113,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         }
     }
 
-    let max_luminance = inspect("max lum nits", monitor.MaxLuminanceInNits());
+    let max_luminance = inspect!("max lum nits", monitor.MaxLuminanceInNits());
     match (monitor.MinLuminanceInNits(), &max_luminance) {
         (Ok(0.0), Ok(0.0)) => {
             // VMware
@@ -122,9 +123,9 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => {}
     }
 
-    match inspect(
+    match inspect!(
         "max avg full frame lum nits",
-        monitor.MaxAverageFullFrameLuminanceInNits(),
+        monitor.MaxAverageFullFrameLuminanceInNits()
     ) {
         Ok(0.0) => flags.medium_penalty(),
         Ok(l) => {
@@ -140,7 +141,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         Err(_) => flags.medium_penalty(),
     }
 
-    match inspect("native res px", monitor.NativeResolutionInRawPixels()) {
+    match inspect!("native res px", monitor.NativeResolutionInRawPixels()) {
         Ok(resolution) => {
             score_display_size(resolution.Width, resolution.Height, flags);
         }

@@ -1,14 +1,27 @@
 use windows::Devices::Enumeration::{DeviceInformation, DeviceInformationKind};
 use windows_core::HSTRING;
 
-pub fn inspect<T: std::fmt::Debug>(name: &str, value: T) -> T {
-    println!("{name}: {value:?}");
-    value
+#[macro_export]
+macro_rules! inspect {
+    ($name:literal, $value:expr) => {{
+        let before = std::time::Instant::now();
+        let value = $value;
+        let t = before.elapsed().as_millis();
+
+        let t = if t == 0 {
+            String::new()
+        } else {
+            format!(" (took {}ms)", t)
+        };
+
+        println!("{}: {:?}{t}", $name, value);
+        value
+    }};
 }
 
 pub fn get_devices_iter(
     selector: &HSTRING,
-) -> anyhow::Result<impl Iterator<Item = DeviceInformation> + 'static + use<>>  {
+) -> anyhow::Result<impl Iterator<Item = DeviceInformation> + 'static + use<>> {
     let devices_collection =
         DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(
             selector,

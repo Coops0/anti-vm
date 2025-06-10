@@ -4,7 +4,7 @@ use windows::Win32::{
 };
 use windows_core::w;
 
-use crate::{flags::Flags, util::inspect};
+use crate::{flags::Flags, inspect};
 
 pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     let mut memory_in_kilos = 0u64;
@@ -54,12 +54,12 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
 
     // If has valid integrated display like a laptop
     // This is also checked in displays.rs but in a different way
-    if matches!(inspect("integrated display size", unsafe { GetIntegratedDisplaySize() }), Ok(size) if size > 256.0)
+    if matches!(inspect!("integrated display size", unsafe { GetIntegratedDisplaySize() }), Ok(size) if size > 256.0)
     {
         flags.medium_bonus();
     }
 
-    let disk_space = inspect("disk space", get_disk_space(flags))?;
+    let disk_space = inspect!("disk space", get_disk_space(flags))?;
     match disk_space.total_space_gig {
         // Windows 11 requires >= 64gb disk to even install
         0..=64 => flags.extreme_penalty(),

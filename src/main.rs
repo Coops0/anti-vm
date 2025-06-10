@@ -1,5 +1,5 @@
 use crate::{
-    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, util::inspect, wifi_adapters::get_wifi_adapters_len
+    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
 };
 
 mod battery;
@@ -9,8 +9,9 @@ mod sysinfo;
 mod usb_devices;
 mod wifi_adapters;
 mod system_devices;
-mod registry;
 mod activated;
+mod registry_macros;
+mod registry;
 mod flags;
 mod util;
 
@@ -27,7 +28,7 @@ mod util;
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();
 
-    match inspect("days since install", days_since_installation()) {
+    match inspect!("days since install", days_since_installation()) {
         Some(days) => match days as u64 {
             0 => flags.extreme_penalty(),
             1..=6 => flags.large_penalty(),
@@ -41,7 +42,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    match inspect("# wifi adapters", get_wifi_adapters_len()) {
+    match inspect!("# wifi adapters", get_wifi_adapters_len()) {
         Ok(len) => match len {
             0 => flags.medium_penalty(),
             1 => flags.medium_bonus(),
@@ -50,28 +51,28 @@ fn main() -> anyhow::Result<()> {
         Err(_) => flags.medium_penalty(),
     };
 
-    match inspect("displays", score_displays(&mut flags)) {
+    match inspect!("displays", score_displays(&mut flags)) {
         Ok(()) => {}
         Err(_) => flags.large_penalty(),
     }
 
-    if inspect("battery info", get_battery()).unwrap_or_default() {
+    if inspect!("battery info", get_battery()).unwrap_or_default() {
         flags.extreme_bonus();
     }
 
-    if inspect("sysinfo", score_sysinfo(&mut flags)).is_err() {
+    if inspect!("sysinfo", score_sysinfo(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
-    if inspect("usb devices", score_usb_devices(&mut flags)).is_err() {
+    if inspect!("usb devices", score_usb_devices(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
-    if inspect("system devices", score_system_devices(&mut flags)).is_err() {
+    if inspect!("system devices", score_system_devices(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
-    if inspect("registry", score_registry(&mut flags)).is_err() {
+    if inspect!("registry", score_registry(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
