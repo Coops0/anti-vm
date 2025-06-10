@@ -18,11 +18,8 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     match memory_in_gigs {
         0..=2 => flags.extreme_penalty(),
         3..=6 => flags.large_penalty(),
-        7 => flags.medium_penalty(),
-        8..=12 => {}
-        13..=24 => flags.small_bonus(),
-        25..=64 => flags.large_bonus(),
-        _ => flags.extreme_bonus(),
+        7..=8 => flags.medium_penalty(),
+        _ => {}
     };
 
     let mut system_info = SYSTEM_INFO::default();
@@ -37,9 +34,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     match system_info.dwNumberOfProcessors {
         0..=1 => flags.large_penalty(),
         2 => flags.medium_penalty(),
-        3..=8 => {}
-        9..=12 => flags.medium_bonus(),
-        _ => flags.extreme_bonus(),
+        _ => {}
     };
 
     let tick_count_ms = unsafe { GetTickCount() };

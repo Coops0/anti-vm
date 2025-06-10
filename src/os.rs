@@ -103,8 +103,7 @@ fn parse_registry_system_time(bytes: [u16; 8]) -> anyhow::Result<DateTime<Utc>> 
     let windows_ticks = high << 32 | low;
     let unix_time = (windows_ticks / WINDOWS_TICK) - SEC_TO_UNIX_EPOCH;
 
-    DateTime::from_timestamp(unix_time as i64, 0)
-        .context("failed to convert system time to DateTime")
+    DateTime::from_timestamp(unix_time as i64, 0).context("bdt")
 }
 
 #[allow(dead_code)]
