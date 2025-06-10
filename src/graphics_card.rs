@@ -1,15 +1,87 @@
 use std::collections::HashMap;
 
+use serde::Deserialize;
+use windows_registry::Value;
 use wmi::{COMLibrary, Variant, WMIConnection};
 
-pub fn check_if_graphics_card() -> anyhow::Result<bool> {
+use crate::flags::Flags;
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "PascalCase")]
+struct GraphicsCard {
+    #[serde(default)]
+    description: String,
+    #[serde(default)]
+    caption: String,
+    #[serde(default)]
+    video_processor: String,
+    #[serde(default)]
+    device_id: String,
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    installed_display_drivers: String,
+    #[serde(default)]
+    inf_section: String,
+    #[serde(default)]
+    adapter_dac_type: String,
+}
+
+pub fn score_graphics_cards(flags: &mut Flags) -> anyhow::Result<()> {
     // https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-videocontroller
-        let com_con = COMLibrary::new()?;
+    let com_con = COMLibrary::new()?;
     let wmi_con = WMIConnection::new(com_con.into())?;
 
-    let graphics_cards = wmi_con.raw_query::<HashMap<String, Variant>>("SELECT * FROM Win32_VideoController")?;
-    println!("Graphics cards {graphics_cards:?}");
-    
+    // Description, Caption, DitherType, VideoProcessor, DeviceID, Name: contains vmware
+    // InstalledDisplayDrivers, MaxNumbersControlled contains vm3dum,
+    // InfSection, StatusInfo contains VM3D
+    // AdapterDACType exists and isn't n/a
 
-    Ok(true)
+    // Description, Caption, DitherType, VideoProcessor, DeviceID, Name, InstalledDisplayDrivers, InfSection, StatusInfo, AdapterDACType
+    let graphics_cards = wmi_con.raw_query::<GraphicsCard>("SELECT Description,Caption,VideoProcessor,DeviceID,Name,InstalledDisplayDrivers,InfSection,AdapterDACType FROM Win32_VideoController")?;
+    println!("{graphics_cards:?}");
+    if graphics_cards.is_empty() {
+        flags.large_penalty();
+        return Ok(());
+    }
+
+    for gc in graphics_cards {
+        score_graphics_card(&gc, flags);
+    }
+
+    Ok(())
+}
+
+fn score_graphics_card(gc: &GraphicsCard, flags: &mut Flags) {
+    if gc.description.contains("VMware") {
+        flags.large_penalty();
+    }
+
+    if gc.caption.contains("VMware") {
+        flags.large_penalty();
+    }
+
+    if gc.video_processor.contains("VMware") {
+        flags.large_penalty();
+    }
+
+    if gc.device_id.contains("VMware") {
+        flags.large_penalty();
+    }
+
+    if gc.name.contains("VMware") {
+        flags.large_penalty();
+    }
+
+    if gc.installed_display_drivers.contains("vm3dum") {
+        flags.large_penalty();
+    }
+
+    if gc.inf_section.contains("VM3D") {
+        flags.large_penalty();
+    }
+
+    if gc.adapter_dac_type.is_empty() || gc.adapter_dac_type == "n/a" {
+        flags.large_penalty();
+    }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    activated::check_is_activated, battery::get_battery, displays::score_displays, flags::Flags, graphics_card::check_if_graphics_card, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
+    activated::check_is_activated, battery::get_battery, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
 };
 
 mod activated;
@@ -77,9 +77,9 @@ fn main() -> anyhow::Result<()> {
         flags.medium_penalty();
     }
 
-    // this can be spoofed
-    if !inspect!("graphics card", check_if_graphics_card()).unwrap_or_default() {
-        flags.large_penalty();
+    // this can be spoofed, and laptops can have discrete graphics cards
+    if inspect!("graphics card", score_graphics_cards(&mut flags)).is_err() {
+        flags.medium_penalty();
     }
 
     println!("penalties: {:?}", flags.penalties());
