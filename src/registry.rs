@@ -300,24 +300,8 @@ fn check_driver_packages(flags: &mut Flags) -> anyhow::Result<()> {
             continue;
         };
 
-        // if check_eq(&package_key.get_string("Provider"), "VMware, Inc.") {
-        //     flags.large_penalty();
-        // }
-
         // HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\pvscsii.inf_amd64_9aaa769bfa6923b1\Strings
         if let Ok(strings_key) = package_key.open("Strings") {
-            // if check_eq(
-            //     &strings_key.get_string("device"),
-            //     "VMware PVSCSI Controller",
-            // ) {
-            //     flags.large_penalty();
-            // }
-
-            // if strings_key.get_string("vmware").is_ok() {
-            //     println!("Found vmware in strings");
-            //     flags.large_penalty();
-            // }
-
             if strings_key.get_string("loc.vmwarebusdevicedesc").is_ok() {
                 println!("Found loc.vmwarebusdevicedesc in strings");
                 flags.large_penalty();
@@ -334,10 +318,6 @@ fn check_driver_packages(flags: &mut Flags) -> anyhow::Result<()> {
                 let Ok(descriptor_key) = descriptors_key.open(descriptor) else {
                     continue;
                 };
-
-                // if check_eq(&descriptor_key.get_string("Manufacturer"), "%vmware%") {
-                //     flags.large_penalty();
-                // }
 
                 if check_eq(
                     &descriptor_key.get_string("Configuration"),
