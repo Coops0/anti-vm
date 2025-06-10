@@ -52,7 +52,7 @@ fn score_device(dev: &DeviceInfo, flags: &mut Flags) {
         dev.product_id() == 0x07DC ||
         dev.product_id() == 0x0A2A ||
         dev.product_id() == 0x0A2B ||
-        // Wireless-AC 3168 Bluetooth
+        // Wireless-AC XYZ Bluetooth
         dev.product_id() == 0x0AA7 ||
         dev.product_id() == 0x0AAA
     )

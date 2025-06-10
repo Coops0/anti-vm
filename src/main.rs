@@ -10,6 +10,7 @@ mod usb_devices;
 mod wifi_adapters;
 mod system_devices;
 mod registry;
+mod activated;
 mod flags;
 mod util;
 

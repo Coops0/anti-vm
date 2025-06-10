@@ -1,7 +1,8 @@
-use windows_registry::{Key, LOCAL_MACHINE};
+use windows_registry::LOCAL_MACHINE;
 
 use crate::flags::Flags;
 
+// TODO need to add virtualbox, parallels, etc. keys
 pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
     if let Ok(bios) = LOCAL_MACHINE.open("HARDWARE\\DESCRIPTION\\System\\BIOS") {
         if check_eq(&bios.get_string("BIOSVendor"), "VMware, Inc.") {
@@ -236,10 +237,10 @@ fn check_control_enums(flags: &mut Flags) -> anyhow::Result<()> {
                     continue;
                 };
 
-                let maybe_device_desc = sub_key.get_string("DeviceDesc");
-                if check_contains(&maybe_device_desc, "vmwarebusdevicedesc")
-                    || check_contains(&maybe_device_desc, "VMware VMCI")
-                {
+                if check_contains_arr(
+                    &sub_key.get_string("DeviceDesc"),
+                    &["vmwarebusdevicedesc", "VMware VMCI"],
+                ) {
                     flags.large_penalty();
                 }
             }
@@ -279,10 +280,10 @@ fn check_control_enums(flags: &mut Flags) -> anyhow::Result<()> {
                     continue;
                 };
 
-                let friendly_name = deeper_sub_key.get_string("FriendlyName");
-                if check_contains(&friendly_name, "NECVMWar")
-                    || check_contains(&friendly_name, "VMware")
-                {
+                if check_contains_arr(
+                    &deeper_sub_key.get_string("FriendlyName"),
+                    &["NECVMWar", "VMware"],
+                ) {
                     flags.large_penalty();
                 }
             }
@@ -372,9 +373,14 @@ fn check_hardware_configs(flags: &mut Flags) -> anyhow::Result<()> {
 }
 
 #[inline]
-fn check_eq<S: Into<SArr>>(k: &windows_registry::Result<String>, value: S) -> bool {
+fn check_eq(k: &windows_registry::Result<String>, value: &str) -> bool {
+    check_eq_arr(k, &[value])
+}
+
+#[inline]
+fn check_eq_arr(k: &windows_registry::Result<String>, value: &[&str]) -> bool {
     let Ok(v) = k else { return false };
-    for val in value.into().0 {
+    for val in value {
         if v.to_lowercase() == val.to_lowercase() {
             println!("Found match: {} == {}", v, val);
             return true;
@@ -385,9 +391,14 @@ fn check_eq<S: Into<SArr>>(k: &windows_registry::Result<String>, value: S) -> bo
 }
 
 #[inline]
-fn check_starts_with<S: Into<SArr>>(k: &windows_registry::Result<String>, value: S) -> bool {
+fn check_starts_with(k: &windows_registry::Result<String>, value: &str) -> bool {
+    check_starts_with_arr(k, &[value])
+}
+
+#[inline]
+fn check_starts_with_arr(k: &windows_registry::Result<String>, value: &[&str]) -> bool {
     let Ok(v) = k else { return false };
-    for val in value.into().0 {
+    for val in value {
         if v.to_lowercase().starts_with(&val.to_lowercase()) {
             println!("Found match: {} starts with {}", v, val);
             return true;
@@ -398,9 +409,14 @@ fn check_starts_with<S: Into<SArr>>(k: &windows_registry::Result<String>, value:
 }
 
 #[inline]
-fn check_contains<S: Into<SArr>>(k: &windows_registry::Result<String>, value: S) -> bool {
+fn check_contains(k: &windows_registry::Result<String>, value: &str) -> bool {
+    check_contains_arr(k, &[value])
+}
+
+#[inline]
+fn check_contains_arr(k: &windows_registry::Result<String>, value: &[&str]) -> bool {
     let Ok(v) = k else { return false };
-    for val in value.into().0 {
+    for val in value {
         if v.to_lowercase().contains(&val.to_lowercase()) {
             println!("Found match: {} contains {}", v, val);
             return true;
@@ -408,30 +424,4 @@ fn check_contains<S: Into<SArr>>(k: &windows_registry::Result<String>, value: S)
     }
 
     false
-}
-
-struct SArr(Vec<String>);
-
-impl From<String> for SArr {
-    fn from(value: String) -> Self {
-        SArr(vec![value])
-    }
-}
-
-impl From<&str> for SArr {
-    fn from(value: &str) -> Self {
-        SArr(vec![value.to_string()])
-    }
-}
-
-impl<Str: ToString> From<Vec<Str>> for SArr {
-    fn from(value: Vec<Str>) -> Self {
-        SArr(value.into_iter().map(|s| s.to_string()).collect())
-    }
-}
-
-impl<Str: ToString> From<&[Str]> for SArr {
-    fn from(value: &[Str]) -> Self {
-        SArr(value.into_iter().map(|s| s.to_string()).collect())
-    }
 }
