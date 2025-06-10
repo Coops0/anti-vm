@@ -56,10 +56,14 @@ fn check_objects(flags: &mut Flags) -> anyhow::Result<()> {
             let Ok(element_container) = elements_root.open(element_container) else {
                 continue;
             };
-            let r = element_container.get_string("Element");
-            if check_eq(&r, "EFI VMware Virtual SCSI Hard Drive (0.0)")
-                || check_eq(&r, "EFI VMware Virtual SATA CDROM Drive (1.0)")
-            {
+
+            if check_eq_arr(
+                &element_container.get_string("Element"),
+                &[
+                    "EFI VMware Virtual SCSI Hard Drive (0.0)",
+                    "EFI VMware Virtual SATA CDROM Drive (1.0)",
+                ],
+            ) {
                 flags.end_all_penalty();
             }
         }
@@ -129,10 +133,7 @@ fn check_device_classes(flags: &mut Flags) -> anyhow::Result<()> {
             continue;
         };
         for sub_class in sub_classes {
-            if sub_class
-                .to_lowercase()
-                .contains(&"Ven_VMware_&Prod_VMware_Virtual_S".to_lowercase())
-            {
+            if contains_arr(&sub_class, &["Ven_VMware_&Prod_VMware_Virtual_S"]) {
                 flags.large_penalty();
             }
 
@@ -172,13 +173,16 @@ fn check_device_containers(flags: &mut Flags) -> anyhow::Result<()> {
             };
 
             for key in keys {
-                let key = key.to_lowercase();
-                if key.contains(&"MFG_VMware__Inc".to_lowercase())
-                    || key.contains(&"Prod_VMware_Virtual_S".to_lowercase())
-                    || key.contains(&"Ven_NECVMWare".to_lowercase())
-                    || key.contains(&"Prod_VMware_SATA_CD01".to_lowercase())
-                    || key.contains(&"Ven_VMware_".to_lowercase())
-                {
+                if contains_arr(
+                    &key,
+                    &[
+                        "MFG_VMware__Inc",
+                        "Prod_VMware_Virtual_S",
+                        "Ven_NECVMWare",
+                        "Prod_VMware_SATA_CD01",
+                        "Ven_VMware_",
+                    ],
+                ) {
                     flags.large_penalty();
                 }
             }
@@ -250,11 +254,14 @@ fn check_control_enums(flags: &mut Flags) -> anyhow::Result<()> {
     // HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\SCSI\CdRom&Ven_NECVMWar&Prod_VMware_SATA_CD01
     let scsi = root.open("SCSI")?;
     for scsi_key in scsi.keys()? {
-        let scsi_key_low = scsi_key.to_lowercase();
-        if scsi_key_low.contains(&"Ven_NECVMWar".to_lowercase())
-            || scsi_key_low.contains(&"Prod_VMware_SATA_CD01".to_lowercase())
-            || scsi_key_low.contains(&"Prod_VMware_Virtual_S".to_lowercase())
-        {
+        if contains_arr(
+            &scsi_key,
+            &[
+                "Ven_NECVMWar",
+                "Prod_VMware_SATA_CD01",
+                "Prod_VMware_Virtual_S",
+            ],
+        ) {
             flags.large_penalty();
         }
 
@@ -304,7 +311,6 @@ fn check_driver_packages(flags: &mut Flags) -> anyhow::Result<()> {
         // HKEY_LOCAL_MACHINE\SYSTEM\DriverDatabase\DriverPackages\pvscsii.inf_amd64_9aaa769bfa6923b1\Strings
         if let Ok(strings_key) = package_key.open("Strings") {
             if strings_key.get_string("loc.vmwarebusdevicedesc").is_ok() {
-                println!("Found loc.vmwarebusdevicedesc in strings");
                 flags.large_penalty();
             }
         }
@@ -359,10 +365,8 @@ fn check_hardware_configs(flags: &mut Flags) -> anyhow::Result<()> {
                 let Ok(value) = TryInto::<String>::try_into(value) else {
                     continue;
                 };
-                let low = value.to_lowercase();
-                if low.contains(&"VMware, Inc.".to_lowercase())
-                    || low.contains(&"VMW2".to_lowercase())
-                {
+
+                if contains_arr(&value, &["VMware, Inc.", "VMW2"]) {
                     flags.large_penalty();
                 }
             }
@@ -382,7 +386,6 @@ fn check_eq_arr(k: &windows_registry::Result<String>, value: &[&str]) -> bool {
     let Ok(v) = k else { return false };
     for val in value {
         if v.to_lowercase() == val.to_lowercase() {
-            println!("Found match: {} == {}", v, val);
             return true;
         }
     }
@@ -400,7 +403,6 @@ fn check_starts_with_arr(k: &windows_registry::Result<String>, value: &[&str]) -
     let Ok(v) = k else { return false };
     for val in value {
         if v.to_lowercase().starts_with(&val.to_lowercase()) {
-            println!("Found match: {} starts with {}", v, val);
             return true;
         }
     }
@@ -416,9 +418,13 @@ fn check_contains(k: &windows_registry::Result<String>, value: &str) -> bool {
 #[inline]
 fn check_contains_arr(k: &windows_registry::Result<String>, value: &[&str]) -> bool {
     let Ok(v) = k else { return false };
+    contains_arr(&v, value)
+}
+
+#[inline]
+fn contains_arr(k: &str, value: &[&str]) -> bool {
     for val in value {
-        if v.to_lowercase().contains(&val.to_lowercase()) {
-            println!("Found match: {} contains {}", v, val);
+        if k.to_lowercase().contains(&val.to_lowercase()) {
             return true;
         }
     }
