@@ -9,6 +9,7 @@ edition = "2024"
 anyhow = "1.0.98"
 chrono = "0.4.41"
 nusb = "0.1.14"
+serde = { version = "1.0.219", features = ["derive"] }
 windows = { version = "0.61.1", features = [
     "Foundation",
     "Globalization_DateTimeFormatting",
@@ -38,6 +39,7 @@ windows = { version = "0.61.1", features = [
 windows-collections = "0.2.0"
 windows-core = "0.61.2"
 windows-registry = "0.5.2"
+wmi = "0.17.2"
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.

@@ -1,19 +1,21 @@
 use crate::{
-    battery::get_battery, displays::score_displays, first_logon_time::days_since_installation, flags::Flags, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
+    battery::get_battery, displays::score_displays, flags::Flags, os::score_os,
+    registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices,
+    usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len,
 };
 
+mod activated;
 mod battery;
 mod displays;
-mod first_logon_time;
-mod sysinfo;
-mod usb_devices;
-mod wifi_adapters;
-mod system_devices;
-mod activated;
-mod registry_macros;
-mod registry;
 mod flags;
+mod os;
+mod registry;
+mod registry_macros;
+mod sysinfo;
+mod system_devices;
+mod usb_devices;
 mod util;
+mod wifi_adapters;
 
 // TODO check across many (real) systems
 // TODO check across virtual box, hyperv, (and maybe even UTM?)
@@ -24,22 +26,11 @@ mod util;
 
 // TODO strip binary with build step too
 // TODO setup clippy checks
-// TODO timing test each
 fn main() -> anyhow::Result<()> {
     let mut flags = Flags::new();
 
-    match inspect!("days since install", days_since_installation()) {
-        Some(days) => match days as u64 {
-            0 => flags.extreme_penalty(),
-            1..=6 => flags.large_penalty(),
-            // Okay...
-            7..=60 => {}
-            _ => flags.small_bonus(),
-        },
-        None => {
-            println!("Error getting first logon time");
-            flags.large_penalty();
-        }
+    if inspect!("os", score_os(&mut flags)).is_err() {
+        flags.large_penalty();
     }
 
     match inspect!("# wifi adapters", get_wifi_adapters_len()) {
