@@ -1,5 +1,5 @@
 use crate::{
-    activated::check_is_activated, battery::get_battery, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
+    activated::check_is_activated, battery::get_battery, bluetooth_adapters::check_if_bluetooth_adapter, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, wifi_adapters::get_wifi_adapters_len
 };
 
 mod activated;
@@ -14,6 +14,7 @@ mod sysinfo;
 mod system_devices;
 mod usb_devices;
 mod graphics_card;
+mod bluetooth_adapters;
 mod util;
 mod wifi_adapters;
 
@@ -80,6 +81,10 @@ fn main() -> anyhow::Result<()> {
     // this can be spoofed, and laptops can have discrete graphics cards
     if inspect!("graphics card", score_graphics_cards(&mut flags)).is_err() {
         flags.medium_penalty();
+    }
+
+    if !inspect!("bluetooth", check_if_bluetooth_adapter()).unwrap_or_default() {
+        flags.large_penalty();
     }
 
     println!("penalties: {:?}", flags.penalties());

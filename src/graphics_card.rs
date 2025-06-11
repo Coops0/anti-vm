@@ -39,7 +39,6 @@ pub fn score_graphics_cards(flags: &mut Flags) -> anyhow::Result<()> {
 
     // Description, Caption, DitherType, VideoProcessor, DeviceID, Name, InstalledDisplayDrivers, InfSection, StatusInfo, AdapterDACType
     let graphics_cards = wmi_con.raw_query::<GraphicsCard>("SELECT Description,Caption,VideoProcessor,DeviceID,Name,InstalledDisplayDrivers,InfSection,AdapterDACType FROM Win32_VideoController")?;
-    println!("{graphics_cards:?}");
     if graphics_cards.is_empty() {
         flags.large_penalty();
         return Ok(());

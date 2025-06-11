@@ -9,8 +9,8 @@ pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
     for device in devices {
         let Ok(name) = device.Name() else { continue };
         let lc = name.to_string_lossy().to_lowercase();
+
         if lc.contains("vmware") || lc.contains("virtualbox") {
-            println!("found virtual machine device: {name}");
             flags.end_all_penalty();
         }
     }
