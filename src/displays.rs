@@ -6,7 +6,7 @@ use windows::Devices::Enumeration::DeviceInformation;
 
 use crate::flags::Flags;
 use crate::inspect;
-use crate::util::{get_devices_iter};
+use crate::util::get_devices_iter;
 
 // TODO score adapters
 // DisplayAdapterId

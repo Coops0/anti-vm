@@ -1,4 +1,4 @@
-#! [allow(dead_code)]
+#![allow(dead_code)]
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Level {
@@ -7,7 +7,7 @@ pub enum Level {
     Medium,
     Large,
     Extreme,
-    EndAll
+    EndAll,
 }
 
 impl Level {

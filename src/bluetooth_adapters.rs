@@ -1,7 +1,4 @@
-use windows::Devices::{
-    Bluetooth::BluetoothAdapter,
-    Enumeration::DeviceInformation,
-};
+use windows::Devices::{Bluetooth::BluetoothAdapter, Enumeration::DeviceInformation};
 
 use crate::util::get_devices_iter;
 

@@ -1,8 +1,5 @@
 use windows::{
-    Devices::{
-        Enumeration::DeviceInformation,
-        WiFi::WiFiAdapter,
-    },
+    Devices::{Enumeration::DeviceInformation, WiFi::WiFiAdapter},
     Networking::Connectivity::NetworkTypes,
 };
 

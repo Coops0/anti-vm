@@ -1,4 +1,6 @@
-use windows::Win32::Security::Authentication::Identity::{SLIsGenuineLocal, SL_GEN_STATE_INVALID_LICENSE, SL_GEN_STATE_IS_GENUINE};
+use windows::Win32::Security::Authentication::Identity::{
+    SL_GEN_STATE_INVALID_LICENSE, SL_GEN_STATE_IS_GENUINE, SLIsGenuineLocal,
+};
 use windows_core::GUID;
 
 const RPC: GUID = GUID::from_values(

@@ -125,8 +125,7 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
             recurse!(
                 eq!("BIOSVendor", "VMware, Inc." => Large),
                 recurse_into!("ComputerIds" => {
-                    any_value_contains!("VMware, Inc." | "VMW2" | "VirtualBox" | "Virtual Machine" | "Oracle" => Large),
-
+                    any_value_contains!("VMware, Inc." | "VMW2" | "VirtualBox" | "Virtual Machine" | "Oracle" => Large)
                 })
             ),
         }),

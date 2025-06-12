@@ -121,8 +121,9 @@ fn get_wmi_os_stats() -> anyhow::Result<DateTime<FixedOffset>> {
     let com_con = COMLibrary::new()?;
     let wmi_con = WMIConnection::new(com_con)?;
 
-    let results =
-        wmi_con.raw_query::<Win32OperatingSystem>("SELECT Caption, Name, InstallDate, SerialNumber, OsType FROM Win32_OperatingSystem")?;
+    let results = wmi_con.raw_query::<Win32OperatingSystem>(
+        "SELECT Caption, Name, InstallDate, SerialNumber, OsType FROM Win32_OperatingSystem",
+    )?;
 
     let os = results.first().context("nf")?;
 
