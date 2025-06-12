@@ -1,4 +1,3 @@
-
 use windows::Devices::Enumeration::DeviceInformation;
 use windows_registry::LOCAL_MACHINE;
 
@@ -10,21 +9,38 @@ pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
         let Ok(name) = device.Name() else { continue };
         let lc = name.to_string_lossy().to_lowercase();
 
-        if lc.contains("vmware") || lc.contains("virtualbox") {
+        if lc.contains("vmware") || lc.contains("virtualbox") || lc.contains("vbox") {
             flags.end_all_penalty();
+        }
+
+        if lc.contains("ps/2") {
+            flags.medium_penalty();
         }
     }
 
     for pci in get_registry_pci()? {
-        if pci.device_desc.to_lowercase().contains("vmware") {
+        let dd = pci.device_desc.to_lowercase();
+        if dd.contains("vmware") || dd.contains("virtualbox") || dd.contains("vbox") {
             flags.end_all_penalty();
         }
 
-        if let Some(service) = &pci.service && service == "vmci" {
+        if dd.contains("ps/2") {
+            flags.medium_penalty();
+        }
+
+        if let Some(service) = &pci.service
+            && service == "vmci"
+        {
             flags.extreme_penalty();
         }
 
-
+        if pci
+            .hardware_id
+            .iter()
+            .any(|id| id.to_lowercase().contains("vbox"))
+        {
+            flags.end_all_penalty();
+        }
     }
     Ok(())
 }
@@ -47,7 +63,9 @@ fn get_registry_pci() -> anyhow::Result<Vec<PciDevice>> {
         .filter_map(|key| root.open(key).ok())
         .flat_map(|key| {
             let key_parents = key.keys().ok()?;
-            let keys = key_parents.filter_map(|s| key.open(s).ok()).collect::<Vec<_>>();
+            let keys = key_parents
+                .filter_map(|s| key.open(s).ok())
+                .collect::<Vec<_>>();
             Some(keys)
         })
         .flatten()

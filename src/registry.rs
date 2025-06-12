@@ -20,10 +20,7 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
             recurse!(
                 recurse_into!("Elements" => {
                     recurse!(
-                        eq_any!("Element",
-                            "EFI VMware Virtual SCSI Hard Drive (0.0)" |
-                            "EFI VMware Virtual SATA CDROM Drive (1.0)" => EndAll
-                        ),
+                        contains_any!("Element", "VMware" | "VBOX" => EndAll),
                     )
                 })
             ),
@@ -70,6 +67,11 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
         rule!("SYSTEM\\ControlSet001\\Control\\Video" => {
             recurse!(
                 recurse!(
+                    contains!("Service", "VBox" => Large),
+                    contains!("DeviceDesc", "VirtualBox" => Large),
+                    contains!("DriverDesc", "VirtualBox" => Large),
+                    contains!("ProviderName", "Oracle" => Large),
+                    contains!("InfSection", "VBox" => Large),
                     eq!("HardwareInformation.ChipType", "VMware" => Large),
                     eq!("HardwareInformation.DacType", "VMware" => Large),
                 )
@@ -79,6 +81,7 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
             recurse!(
                 recurse!(
                     contains_any!("DeviceDesc", "vmwarebusdevicedesc" | "VMware VMCI" => Large),
+                    contains_any!("DeviceDesc", "Microsoft PS/2" => Medium)
                 )
             ),
         }),
@@ -91,7 +94,9 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
                 ),
                 recurse!(
                     recurse!(
-                        contains_any!("FriendlyName", "NECVMWar" | "VMware" => Large),
+                        contains_any!("FriendlyName", "NECVMWar" | "VMware" | "VBOX" => Large),
+                        contains_any!("HardwareID", "VMware" | "VBOX" => Large),
+                        contains_any!("DeviceDesc", "Microsoft PS/2" => Medium)
                     )
                 )
             ),
@@ -113,7 +118,8 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
             recurse!(
                 eq!("BIOSVendor", "VMware, Inc." => Large),
                 recurse_into!("ComputerIds" => {
-                    any_value_contains!("VMware, Inc." | "VMW2" => Large),
+                    any_value_contains!("VMware, Inc." | "VMW2" | "VirtualBox" | "Virtual Machine" | "Oracle" => Large),
+                    
                 })
             ),
         }),

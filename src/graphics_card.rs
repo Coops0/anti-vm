@@ -1,8 +1,6 @@
-use std::collections::HashMap;
 
 use serde::Deserialize;
-use windows_registry::Value;
-use wmi::{COMLibrary, Variant, WMIConnection};
+use wmi::{COMLibrary, WMIConnection};
 
 use crate::flags::Flags;
 

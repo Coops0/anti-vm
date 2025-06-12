@@ -61,7 +61,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
 
         // VGA
         DisplayMonitorPhysicalConnectorKind::HD15 => {
-            // This is the type that VMware uses
+            // This is the type that VMware & Vbox uses
             flags.large_penalty();
         }
 
@@ -95,7 +95,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         flags.large_bonus();
     }
 
-    // VMware fails this
+    // VMware & Vbox fails this
     if inspect!("display name", monitor.DisplayName())?.is_empty() {
         flags.large_penalty();
     }
@@ -108,7 +108,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     ) {
         Ok(_resolution) => {}
         Err(_err) => {
-            // VMware: err.code() == HRESULT(0)
+            // VMware & Vbox: err.code() == HRESULT(0)
             flags.large_penalty();
         }
     }
@@ -116,7 +116,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     let max_luminance = inspect!("max lum nits", monitor.MaxLuminanceInNits());
     match (monitor.MinLuminanceInNits(), &max_luminance) {
         (Ok(0.0), Ok(0.0)) => {
-            // VMware
+            // VMware & Vbox
             flags.large_penalty();
         }
         (Err(_), _) | (_, Err(_)) => flags.medium_penalty(),
@@ -129,7 +129,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     ) {
         Ok(0.0) => flags.medium_penalty(),
         Ok(l) => {
-            // If these match up then that's a sign the display is real
+            // If these match up then that's a good sign
             if let Ok(ml) = &max_luminance {
                 if l == *ml {
                     flags.small_bonus();

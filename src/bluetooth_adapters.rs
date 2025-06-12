@@ -1,5 +1,5 @@
 use windows::Devices::{
-    Bluetooth::{self, BluetoothAdapter, BluetoothDevice},
+    Bluetooth::BluetoothAdapter,
     Enumeration::DeviceInformation,
 };
 

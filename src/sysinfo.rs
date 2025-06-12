@@ -1,3 +1,4 @@
+use anyhow::Context;
 use windows::Win32::{
     Storage::FileSystem::{DISK_SPACE_INFORMATION, GetDiskSpaceInformationW},
     System::SystemInformation::*,
@@ -8,19 +9,20 @@ use crate::{flags::Flags, inspect};
 
 pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     let mut memory_in_kilos = 0u64;
-    unsafe {
-        GetPhysicallyInstalledSystemMemory(&mut memory_in_kilos)?;
-    };
 
-    let memory_in_gigs = memory_in_kilos / (1024 * 1024);
-    println!("memory installed: {memory_in_gigs}GB");
+    if unsafe { GetPhysicallyInstalledSystemMemory(&mut memory_in_kilos) }.is_ok() {
+        let memory_in_gigs = memory_in_kilos / (1024 * 1024);
+        println!("memory installed: {memory_in_gigs}GB");
 
-    match memory_in_gigs {
-        0..=2 => flags.extreme_penalty(),
-        3..=6 => flags.large_penalty(),
-        7..=8 => flags.medium_penalty(),
-        _ => {}
-    };
+        match memory_in_gigs {
+            0..=2 => flags.extreme_penalty(),
+            3..=6 => flags.large_penalty(),
+            7..=8 => flags.medium_penalty(),
+            _ => {}
+        };
+    } else {
+        flags.large_penalty();
+    }
 
     let mut system_info = SYSTEM_INFO::default();
     unsafe {
@@ -54,7 +56,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         flags.medium_bonus();
     }
 
-    let disk_space = inspect!("disk space", get_disk_space(flags))?;
+    let disk_space = inspect!("disk space", get_disk_space(flags)).context("gds")?;
     match disk_space.total_space_gig {
         // Windows 11 requires >= 64gb disk to even install
         0..=64 => flags.extreme_penalty(),
