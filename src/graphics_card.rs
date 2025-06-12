@@ -28,7 +28,7 @@ struct GraphicsCard {
 pub fn score_graphics_cards(flags: &mut Flags) -> anyhow::Result<()> {
     // https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-videocontroller
     let com_con = COMLibrary::new()?;
-    let wmi_con = WMIConnection::new(com_con.into())?;
+    let wmi_con = WMIConnection::new(com_con)?;
 
     // Description, Caption, DitherType, VideoProcessor, DeviceID, Name: contains vmware
     // InstalledDisplayDrivers, MaxNumbersControlled contains vm3dum,

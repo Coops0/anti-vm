@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::flags::{Flags, Level};
 
 pub struct RegistryRule {

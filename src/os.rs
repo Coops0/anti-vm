@@ -119,7 +119,7 @@ struct Win32OperatingSystem {
 
 fn get_wmi_os_stats() -> anyhow::Result<DateTime<FixedOffset>> {
     let com_con = COMLibrary::new()?;
-    let wmi_con = WMIConnection::new(com_con.into())?;
+    let wmi_con = WMIConnection::new(com_con)?;
 
     let results =
         wmi_con.raw_query::<Win32OperatingSystem>("SELECT Caption, Name, InstallDate, SerialNumber, OsType FROM Win32_OperatingSystem")?;
@@ -136,9 +136,9 @@ fn parse_wmi_install_date(date_str: &str) -> anyhow::Result<DateTime<FixedOffset
     let tz_minutes: i32 = tz_part.parse()?;
     let tz_hours = tz_minutes / 60;
     let tz_mins = tz_minutes % 60;
-    let tz_formatted = format!("-{:02}:{:02}", tz_hours, tz_mins);
+    let tz_formatted = format!("-{tz_hours:02}:{tz_mins:02}");
 
-    let formatted_date = format!("{}{}", datetime_part, tz_formatted);
+    let formatted_date = format!("{datetime_part}{tz_formatted}");
 
     DateTime::parse_from_str(&formatted_date, "%Y%m%d%H%M%S%.f%z").map_err(Into::into)
 }

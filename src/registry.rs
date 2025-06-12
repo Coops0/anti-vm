@@ -1,5 +1,5 @@
 use crate::{
-    any_value_contains, contains, contains_any, eq, eq_any,
+    any_value_contains, contains, contains_any, eq,
     flags::{Flags, Level},
     key_contains, recurse, recurse_into,
     registry_macros::execute_checks,
@@ -38,6 +38,13 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
                     eq!("HardwareInformation.DacType", "VMware" => Large),
                 )
             ),
+        }),
+        rule!("SYSTEM\\ControlSet001\\Services" => {
+            recurse!(
+                recurse!(
+                    contains!("Name", "VirtualBox" => Large),
+                )
+            )
         }),
         rule!("SYSTEM\\ControlSet001\\Control\\DeviceClasses" => {
             recurse!(
@@ -119,7 +126,7 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
                 eq!("BIOSVendor", "VMware, Inc." => Large),
                 recurse_into!("ComputerIds" => {
                     any_value_contains!("VMware, Inc." | "VMW2" | "VirtualBox" | "Virtual Machine" | "Oracle" => Large),
-                    
+
                 })
             ),
         }),
