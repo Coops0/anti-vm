@@ -3,7 +3,8 @@ use wmi::{COMLibrary, WMIConnection};
 
 use crate::flags::Flags;
 
-#[derive(Deserialize, Debug)]
+#[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct GraphicsCard {
     #[serde(default)]

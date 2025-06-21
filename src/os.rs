@@ -8,7 +8,7 @@ use windows::Win32::{
 use windows_registry::{Key, USERS};
 use wmi::{COMLibrary, WMIConnection};
 
-use crate::flags::Flags;
+use crate::{debug_println, flags::Flags};
 
 pub fn score_os(flags: &mut Flags) -> anyhow::Result<()> {
     let registry_date = get_registry_days_since_installation()?.date_naive();
@@ -19,7 +19,7 @@ pub fn score_os(flags: &mut Flags) -> anyhow::Result<()> {
         .abs()
         .num_days();
 
-    println!("the installations differ by {installations_diff} days");
+    debug_println!("the installations differ by {installations_diff} days");
     if installations_diff > 2 {
         flags.large_penalty();
     }
@@ -29,7 +29,7 @@ pub fn score_os(flags: &mut Flags) -> anyhow::Result<()> {
         .signed_duration_since(Utc::now().date_naive())
         .num_days();
 
-    println!("days since installation: {days_since_installation}");
+    debug_println!("days since installation: {days_since_installation}");
 
     match days_since_installation {
         0 => flags.extreme_penalty(),
@@ -107,7 +107,8 @@ fn parse_registry_system_time(bytes: [u16; 8]) -> anyhow::Result<DateTime<Utc>> 
 }
 
 #[allow(dead_code)]
-#[derive(Deserialize, Debug)]
+#[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct Win32OperatingSystem {
     caption: String,       // Microsoft Windows 11 Pro

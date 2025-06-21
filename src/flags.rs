@@ -1,6 +1,9 @@
 #![allow(dead_code)]
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+use paste2::paste;
+
+#[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Level {
     Tiny,
     Small,
@@ -23,9 +26,23 @@ impl Level {
     }
 }
 
+#[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Clone)]
 pub struct Flags {
     penalties: Vec<Level>,
     bonuses: Vec<Level>,
+}
+
+#[cfg(debug_assertions)]
+fn print_caller(t: &str, level: Level, location: &std::panic::Location<'_>) {
+    use crate::debug_println;
+
+    debug_println!(
+        "{t}: {level:?} at {}:{}:{}",
+        location.file(),
+        location.line(),
+        location.column()
+    );
 }
 
 impl Flags {
@@ -36,55 +53,49 @@ impl Flags {
         }
     }
 
+    #[cfg(debug_assertions)]
+    #[track_caller]
+    #[inline]
     pub fn penalty(&mut self, level: Level) {
-        self.penalties.push(level);
+        print_caller("PENALTY GENERIC", level, std::panic::Location::caller());
+        self.inner_penalty(level);
     }
 
+    #[cfg(not(debug_assertions))]
+    #[inline]
+    pub fn penalty(&mut self, level: Level) {
+        self.inner_penalty(level);
+    }
+
+    #[cfg(debug_assertions)]
+    #[track_caller]
+    #[inline]
     pub fn bonus(&mut self, level: Level) {
-        self.bonuses.push(level);
+        self.inner_bonus(level);
     }
 
-    pub fn tiny_penalty(&mut self) {
-        self.penalty(Level::Tiny);
-    }
-    pub fn small_penalty(&mut self) {
-        self.penalty(Level::Small);
-    }
-    pub fn medium_penalty(&mut self) {
-        self.penalty(Level::Medium);
-    }
-    pub fn large_penalty(&mut self) {
-        self.penalty(Level::Large);
-    }
-    pub fn extreme_penalty(&mut self) {
-        self.penalty(Level::Extreme);
-    }
-    pub fn end_all_penalty(&mut self) {
-        self.penalty(Level::EndAll);
-    }
-    pub fn tiny_bonus(&mut self) {
-        self.bonus(Level::Tiny);
-    }
-    pub fn small_bonus(&mut self) {
-        self.bonus(Level::Small);
-    }
-    pub fn medium_bonus(&mut self) {
-        self.bonus(Level::Medium);
-    }
-    pub fn large_bonus(&mut self) {
-        self.bonus(Level::Large);
-    }
-    pub fn extreme_bonus(&mut self) {
-        self.bonus(Level::Extreme);
-    }
-    pub fn end_all_bonus(&mut self) {
-        self.bonus(Level::EndAll);
+    #[cfg(not(debug_assertions))]
+    #[inline]
+    pub fn bonus(&mut self, level: Level) {
+        self.inner_bonus(level);
     }
 
+    #[inline]
+    fn inner_penalty(&mut self, level: Level) {
+        self.penalty(level);
+    }
+
+    #[inline]
+    fn inner_bonus(&mut self, level: Level) {
+        self.bonus(level);
+    }
+
+    #[inline]
     pub fn penalties(&self) -> &[Level] {
         &self.penalties
     }
 
+    #[inline]
     pub fn bonuses(&self) -> &[Level] {
         &self.bonuses
     }
@@ -94,4 +105,51 @@ impl Flags {
         let bonus_score: i64 = self.bonuses.iter().copied().map(Level::value).sum();
         bonus_score - penalty_score
     }
+}
+
+macro_rules! impl_flags {
+    ($($name:ident => $level:expr),* $(,)?) => {
+        paste! {
+            impl Flags {
+                $(
+                        #[cfg(debug_assertions)]
+                        #[track_caller]
+                        #[inline]
+                        pub fn [<$name _penalty>](&mut self) {
+                            print_caller("PENALTY", $level, std::panic::Location::caller());
+                            self.inner_penalty($level);
+                        }
+
+                        #[cfg(not(debug_assertions))]
+                        #[inline]
+                        pub fn [<$name _penalty>](&mut self) {
+                            self.inner_penalty($level);
+                        }
+
+                        #[cfg(debug_assertions)]
+                        #[track_caller]
+                        #[inline]
+                        pub fn [<$name _bonus>](&mut self) {
+                            print_caller("BONUS", $level, std::panic::Location::caller());
+                            self.inner_bonus($level);
+                        }
+
+                        #[cfg(not(debug_assertions))]
+                        #[inline]
+                        pub fn [<$name _bonus>](&mut self) {
+                            self.inner_bonus($level);
+                        }
+                )*
+            }
+        }
+    };
+}
+
+impl_flags! {
+    tiny => Level::Tiny,
+    small => Level::Small,
+    medium => Level::Medium,
+    large => Level::Large,
+    extreme => Level::Extreme,
+    end_all => Level::EndAll,
 }

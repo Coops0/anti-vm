@@ -5,14 +5,14 @@ use windows::Win32::{
 };
 use windows_core::w;
 
-use crate::{flags::Flags, inspect};
+use crate::{debug_println, flags::Flags, inspect};
 
 pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     let mut memory_in_kilos = 0u64;
 
     if unsafe { GetPhysicallyInstalledSystemMemory(&raw mut memory_in_kilos) }.is_ok() {
         let memory_in_gigs = memory_in_kilos / (1024 * 1024);
-        println!("memory installed: {memory_in_gigs}GB");
+        debug_println!("memory installed: {memory_in_gigs}GB");
 
         match memory_in_gigs {
             0..=2 => flags.extreme_penalty(),
@@ -32,7 +32,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
 
     // Only useful field is processors
     // The architecture is the same as host architecture
-    println!("number of processors: {}", system_info.dwNumberOfProcessors);
+    debug_println!("number of processors: {}", system_info.dwNumberOfProcessors);
     match system_info.dwNumberOfProcessors {
         0..=1 => flags.large_penalty(),
         2 => flags.medium_penalty(),
@@ -41,7 +41,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
 
     let tick_count_ms = unsafe { GetTickCount() };
     let tick_count_sec = tick_count_ms / 1000;
-    println!("tick count: {tick_count_sec}s");
+    debug_println!("tick count: {tick_count_sec}s");
 
     match tick_count_sec {
         0..=60 => flags.extreme_penalty(),
@@ -73,7 +73,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         .total_space_gig
         .saturating_sub(disk_space.free_space_gig + EST_WINDOWS_DIR_SIZE_GIG);
 
-    println!("used space minus windows installation: {used_space_minus_windows_installation}GB");
+    debug_println!("used space minus windows installation: {used_space_minus_windows_installation}GB");
 
     match used_space_minus_windows_installation {
         0..=3 => flags.large_penalty(),
@@ -86,7 +86,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     Ok(())
 }
 
-#[derive(Debug)]
+#[cfg_attr(debug_assertions, derive(Debug))]
 struct DiskSpaceReport {
     total_space_gig: u64,
     free_space_gig: u64,
@@ -97,7 +97,7 @@ fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
     unsafe {
         // Initally try to use main disk in case we are being executed from a USB drive or network
         if let Err(err) = GetDiskSpaceInformationW(w!("C:/"), &raw mut disk_space_information) {
-            println!("Error getting C: disk space information: {err:?}");
+            debug_println!("Error getting C: disk space information: {err:?}");
             flags.large_penalty();
 
             // Fallback to current disk

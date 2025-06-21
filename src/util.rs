@@ -1,29 +1,54 @@
 use windows::Devices::Enumeration::{DeviceInformation, DeviceInformationKind};
 use windows_core::HSTRING;
 
+#[cfg(debug_assertions)]
+#[macro_export]
+macro_rules! debug_println {
+    ($($arg:tt)*) => {
+        std::println!($($arg)*);
+    };
+}
+
+#[cfg(not(debug_assertions))]
+#[macro_export]
+macro_rules! debug_println {
+    ($($arg:tt)*) => {};
+}
+
+#[cfg(debug_assertions)]
 #[macro_export]
 macro_rules! inspect {
     ($name:literal, $value:expr) => {{
-        let before = std::time::Instant::now();
+        // let before = std::time::Instant::now();
         let value = $value;
-        let t = before.elapsed().as_millis();
+        // let t = before.elapsed().as_millis();
 
-        let t = if t != 0 {
-            format!(" (took {t}ms)")
-        } else {
-            String::new()
-        };
+        // let t = if t != 0 {
+        //     format!(" (took {t}ms)")
+        // } else {
+        //     String::new()
+        // };
 
-        let location = if cfg!(debug_assertions) {
-            format!(" ({}:{}:{})", file!(), line!(), column!())
-        } else {
-            String::new()
-        };
+        // let location = if cfg!(debug_assertions) {
+        //     format!(" ({}:{}:{})", file!(), line!(), column!())
+        // } else {
+        //     String::new()
+        // };
 
-        println!("{}: {:?}{t}{location}", $name, value);
+        // println!( "{}: {:?}{t}{location}\n", $name, value);
+        // $crate::debug_println!("{}: {:?}{t}{location}\n", $name, value);
         value
-    }};
+    }}
 }
+
+#[cfg(not(debug_assertions))]
+#[macro_export]
+macro_rules! inspect {
+    ($name:literal, $value:expr) => {
+        $value
+    }
+}
+
 
 pub fn get_devices_iter(
     selector: &HSTRING,
@@ -46,12 +71,4 @@ pub fn get_devices_iter(
 
     let devices_iter = devices.into_iter().take(fetched_size).flatten();
     Ok(devices_iter)
-}
-
-#[macro_export]
-macro_rules! debug_println {
-    ($($arg:tt)*) => {
-        #[cfg(debug_assertions)]
-        println!($($arg)*);
-    };
 }

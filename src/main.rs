@@ -1,3 +1,5 @@
+#![feature(stmt_expr_attributes)]
+
 use crate::{
     activated::check_is_activated, battery::get_battery,
     bluetooth_adapters::check_if_bluetooth_adapter, displays::score_displays, flags::Flags,
@@ -89,8 +91,8 @@ fn main() {
         flags.large_penalty();
     }
 
-    println!("penalties: {:?}", flags.penalties());
-    println!("bonuses: {:?}", flags.bonuses());
+    debug_println!("penalties: {:?}", flags.penalties());
+    debug_println!("bonuses: {:?}", flags.bonuses());
 
     println!("score: {}", flags.score());
 }

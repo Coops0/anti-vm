@@ -5,7 +5,7 @@ use windows::Devices::Display::{
 use windows::Devices::Enumeration::DeviceInformation;
 
 use crate::flags::Flags;
-use crate::inspect;
+use crate::{debug_println, inspect};
 use crate::util::get_devices_iter;
 
 // TODO score adapters
@@ -27,7 +27,7 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
         }
     }
 
-    println!("found {valid_displays} valid displays");
+    debug_println!("found {valid_displays} valid displays");
 
     match valid_displays {
         0 => flags.extreme_penalty(),

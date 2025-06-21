@@ -1,6 +1,6 @@
 use nusb::{DeviceInfo, InterfaceInfo};
 
-use crate::flags::Flags;
+use crate::{debug_println, flags::Flags};
 
 pub fn score_usb_devices(flags: &mut Flags) -> anyhow::Result<()> {
     let mut valid_devices = 0u32;
@@ -14,7 +14,7 @@ pub fn score_usb_devices(flags: &mut Flags) -> anyhow::Result<()> {
         }
     }
 
-    println!("valid devices: {valid_devices}");
+    debug_println!("valid devices: {valid_devices}");
     match valid_devices {
         0 => flags.large_penalty(),
         1..=5 => {}
