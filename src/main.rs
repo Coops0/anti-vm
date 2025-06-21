@@ -32,7 +32,17 @@ mod wifi_adapters;
 // TODO strip binary with build step too
 // TODO get rid of unused windows crate features
 fn main() {
+    let start = std::time::Instant::now();
     let mut flags = Flags::new();
+
+    let system_devices_t = std::thread::spawn(|| {
+        let mut flags = Flags::new();
+        if inspect!("system devices", score_system_devices(&mut flags)).is_err() {
+            flags.large_penalty();
+        }
+
+        flags
+    });
 
     if inspect!("os", score_os(&mut flags)).is_err() {
         flags.large_penalty();
@@ -58,10 +68,6 @@ fn main() {
         flags.large_penalty();
     }
 
-    if inspect!("system devices", score_system_devices(&mut flags)).is_err() {
-        flags.large_penalty();
-    }
-
     score_registry(&mut flags);
 
     if inspect!("local account", get_is_local_account()).unwrap_or_default() {
@@ -83,8 +89,17 @@ fn main() {
         flags.large_penalty();
     }
 
+    match system_devices_t.join() {
+        Ok(mut system_devices_flags) => flags.merge(&mut system_devices_flags),
+        Err(why) => {
+            debug_println!("failed to join system devices thread: {why:?}");
+        }
+    }
+
     debug_println!("penalties: {:?}", flags.penalties());
     debug_println!("bonuses: {:?}", flags.bonuses());
 
     println!("score: {}", flags.score());
+
+    println!("TOTAL EXECUTION TIME: {}ms", start.elapsed().as_millis());
 }

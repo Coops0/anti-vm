@@ -67,7 +67,8 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
                 String::from_utf16_lossy(&p_if_info.strInterfaceDescription).to_lowercase();
             if description.is_empty()
                 || description.contains("vmware")
-                || description.contains("virtual")
+                || description.contains("virtualbox")
+                || description.contains("vbox")
                 || description.contains("hyper-v")
             {
                 flags.large_penalty();

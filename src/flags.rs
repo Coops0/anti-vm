@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::mem;
+
 use paste2::paste;
 
 #[cfg_attr(debug_assertions, derive(Debug))]
@@ -105,6 +107,11 @@ impl Flags {
         let bonus_score: i64 = self.bonuses.iter().copied().map(Level::value).sum();
         bonus_score - penalty_score
     }
+
+    pub fn merge(&mut self, other: &mut Self) {
+        self.penalties.extend(mem::take(&mut other.penalties));
+        self.bonuses.extend(mem::take(&mut other.bonuses));
+    }
 }
 
 macro_rules! impl_flags {
@@ -112,33 +119,33 @@ macro_rules! impl_flags {
         paste! {
             impl Flags {
                 $(
-                        #[cfg(debug_assertions)]
-                        #[track_caller]
-                        #[inline]
-                        pub fn [<$name _penalty>](&mut self) {
-                            print_caller("PENALTY", $level, std::panic::Location::caller());
-                            self.inner_penalty($level);
-                        }
+                    #[cfg(debug_assertions)]
+                    #[track_caller]
+                    #[inline]
+                    pub fn [<$name _penalty>](&mut self) {
+                        print_caller("PENALTY", $level, std::panic::Location::caller());
+                        self.inner_penalty($level);
+                    }
 
-                        #[cfg(not(debug_assertions))]
-                        #[inline]
-                        pub fn [<$name _penalty>](&mut self) {
-                            self.inner_penalty($level);
-                        }
+                    #[cfg(not(debug_assertions))]
+                    #[inline]
+                    pub fn [<$name _penalty>](&mut self) {
+                        self.inner_penalty($level);
+                    }
 
-                        #[cfg(debug_assertions)]
-                        #[track_caller]
-                        #[inline]
-                        pub fn [<$name _bonus>](&mut self) {
-                            print_caller("BONUS", $level, std::panic::Location::caller());
-                            self.inner_bonus($level);
-                        }
+                    #[cfg(debug_assertions)]
+                    #[track_caller]
+                    #[inline]
+                    pub fn [<$name _bonus>](&mut self) {
+                        print_caller("BONUS", $level, std::panic::Location::caller());
+                        self.inner_bonus($level);
+                    }
 
-                        #[cfg(not(debug_assertions))]
-                        #[inline]
-                        pub fn [<$name _bonus>](&mut self) {
-                            self.inner_bonus($level);
-                        }
+                    #[cfg(not(debug_assertions))]
+                    #[inline]
+                    pub fn [<$name _bonus>](&mut self) {
+                        self.inner_bonus($level);
+                    }
                 )*
             }
         }

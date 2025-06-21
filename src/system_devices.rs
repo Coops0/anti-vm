@@ -3,6 +3,7 @@ use windows_registry::LOCAL_MACHINE;
 
 use crate::flags::Flags;
 
+// TODO parrallelize this
 pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
     let devices = DeviceInformation::FindAllAsync()?.get()?;
     for device in devices {
