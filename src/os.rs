@@ -3,7 +3,15 @@ use chrono::{DateTime, FixedOffset, Utc};
 use serde::Deserialize;
 use windows::Win32::{
     Foundation::{FILETIME, SYSTEMTIME},
-    System::Time::SystemTimeToFileTime,
+    System::{
+        SystemInformation::{
+            OS_PRODUCT_TYPE, PRODUCT_HOME_PREMIUM, PRODUCT_HOME_PREMIUM_E, PRODUCT_HOME_PREMIUM_N,
+            PRODUCT_PROFESSIONAL, PRODUCT_PROFESSIONAL_E, PRODUCT_PROFESSIONAL_N,
+            PRODUCT_PROFESSIONAL_WMC,
+        },
+        Time::SystemTimeToFileTime,
+    },
+    // System::SystemInformation::
 };
 use windows_registry::{Key, USERS};
 use wmi::{COMLibrary, WMIConnection};
@@ -12,7 +20,7 @@ use crate::{debug_println, flags::Flags};
 
 pub fn score_os(flags: &mut Flags) -> anyhow::Result<()> {
     let registry_date = get_registry_days_since_installation()?.date_naive();
-    let wmi_date = get_wmi_os_stats()?.to_utc().date_naive();
+    let wmi_date = get_wmi_os_stats_and_score(flags)?.to_utc().date_naive();
 
     let installations_diff = wmi_date
         .signed_duration_since(registry_date)
@@ -116,17 +124,35 @@ struct Win32OperatingSystem {
     install_date: String,  // 20240704035336.000000-240
     serial_number: String, // TODO 00330-80000-00000-AA359
     os_type: u16, // https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-operatingsystem?redirectedfrom=MSDN#examples
+    operating_system_sku: u32,
 }
 
-fn get_wmi_os_stats() -> anyhow::Result<DateTime<FixedOffset>> {
+const PROS: &[OS_PRODUCT_TYPE] = &[
+    PRODUCT_PROFESSIONAL,
+    PRODUCT_PROFESSIONAL_E,
+    PRODUCT_PROFESSIONAL_N,
+    PRODUCT_PROFESSIONAL_WMC,
+];
+
+fn get_wmi_os_stats_and_score(flags: &mut Flags) -> anyhow::Result<DateTime<FixedOffset>> {
     let com_con = COMLibrary::new()?;
     let wmi_con = WMIConnection::new(com_con)?;
 
     let results = wmi_con.raw_query::<Win32OperatingSystem>(
-        "SELECT Caption, Name, InstallDate, SerialNumber, OsType FROM Win32_OperatingSystem",
+        "SELECT Caption, Name, InstallDate, SerialNumber, OsType, OperatingSystemSku FROM Win32_OperatingSystem",
     )?;
 
     let os = results.first().context("nf")?;
+
+    debug_println!("operating system sku: {}", os.operating_system_sku);
+
+    if PROS
+        .into_iter()
+        .map(|sku| sku.0)
+        .any(|sku| sku == os.operating_system_sku)
+    {
+        flags.small_penalty();
+    }
 
     parse_wmi_install_date(&os.install_date)
 }

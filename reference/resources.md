@@ -9,5 +9,4 @@
 [apps diagnostics](https://learn.microsoft.com/en-us/uwp/api/windows.system.appdiagnosticinfo?view=winrt-26100)
 [user](https://learn.microsoft.com/en-us/uwp/api/windows.system.user?view=winrt-26100)
 [system profile](https://learn.microsoft.com/en-us/uwp/api/windows.system.profile?view=winrt-26100)
-[graphics card (display adapters)]()
 [usb](https://learn.microsoft.com/en-us/uwp/api/windows.devices.usb?view=winrt-26100)
