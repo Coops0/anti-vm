@@ -82,12 +82,12 @@ impl Flags {
 
     #[inline]
     fn inner_penalty(&mut self, level: Level) {
-        self.penalty(level);
+        self.penalties.push(level);
     }
 
     #[inline]
     fn inner_bonus(&mut self, level: Level) {
-        self.bonus(level);
+        self.bonuses.push(level);
     }
 
     #[inline]
