@@ -1,0 +1,376 @@
+=== System Information WMI Query ===
+
+--- Win32_ComputerSystem ---
+ChassisBootupState: 3
+ChassisSKUNumber: Default string
+KeyboardPasswordStatus: 3
+Manufacturer: Gigabyte Technology Co., Ltd.
+Model: X570 AORUS ELITE WIFI
+Name: COOPER-DESKTOP
+PowerOnPasswordStatus: 3
+PowerSupplyState: 3
+ResetCapability: 1
+SystemType: x64-based PC
+ThermalState: 3
+
+--- Win32_BIOS ---
+
+PSComputerName                 : localhost
+RunspaceId                     : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName             : False
+__GENUS                        : 2
+__CLASS                        : Win32_BIOS
+__SUPERCLASS                   : CIM_BIOSElement
+__DYNASTY                      : CIM_ManagedSystemElement
+__RELPATH                      : Win32_BIOS.Name="F30",SoftwareElementID="F30",SoftwareElementState=3,TargetOperatingSystem=0,Version="ALASKA - 1072009"
+__PROPERTY_COUNT               : 31
+__DERIVATION                   : {CIM_BIOSElement, CIM_SoftwareElement, CIM_LogicalElement, CIM_ManagedSystemElement}
+__SERVER                       : COOPER-DESKTOP
+__NAMESPACE                    : root\cimv2
+__PATH                         : \\COOPER-DESKTOP\root\cimv2:Win32_BIOS.Name="F30",SoftwareElementID="F30",SoftwareElementState=3,TargetOperatingSystem=0,Version="ALASKA - 1072009"
+BiosCharacteristics            : {7, 11, 12, 15…}
+BIOSVersion                    : {ALASKA - 1072009, F30, American Megatrends - 50011}
+BuildNumber                    :
+Caption                        : F30
+CodeSet                        :
+CurrentLanguage                : en|US|iso8859-1
+Description                    : F30
+EmbeddedControllerMajorVersion : 255
+EmbeddedControllerMinorVersion : 255
+IdentificationCode             :
+InstallableLanguages           : 15
+InstallDate                    :
+LanguageEdition                :
+ListOfLanguages                : {en|US|iso8859-1, zh|TW|unicode, zh|CN|unicode, ru|RU|iso8859-5…}
+Manufacturer                   : American Megatrends Inc.
+Name                           : F30
+OtherTargetOS                  :
+PrimaryBIOS                    : True
+ReleaseDate                    : 20200915000000.000000+000
+SerialNumber                   : Default string
+SMBIOSBIOSVersion              : F30
+SMBIOSMajorVersion             : 3
+SMBIOSMinorVersion             : 2
+SMBIOSPresent                  : True
+SoftwareElementID              : F30
+SoftwareElementState           : 3
+Status                         : OK
+SystemBiosMajorVersion         : 5
+SystemBiosMinorVersion         : 17
+TargetOperatingSystem          : 0
+Version                        : ALASKA - 1072009
+
+
+
+--- CIM_Card ---
+Found 1 card(s)
+
+PSComputerName          : localhost
+RunspaceId              : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName      : False
+__GENUS                 : 2
+__CLASS                 : Win32_BaseBoard
+__SUPERCLASS            : CIM_Card
+__DYNASTY               : CIM_ManagedSystemElement
+__RELPATH               : Win32_BaseBoard.Tag="Base Board"
+__PROPERTY_COUNT        : 29
+__DERIVATION            : {CIM_Card, CIM_PhysicalPackage, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER                : COOPER-DESKTOP
+__NAMESPACE             : root\cimv2
+__PATH                  : \\COOPER-DESKTOP\root\cimv2:Win32_BaseBoard.Tag="Base Board"
+Caption                 : Base Board
+ConfigOptions           : {Default string}
+CreationClassName       : Win32_BaseBoard
+Depth                   :
+Description             : Base Board
+Height                  :
+HostingBoard            : True
+HotSwappable            : False
+InstallDate             :
+Manufacturer            : Gigabyte Technology Co., Ltd.
+Model                   :
+Name                    : Base Board
+OtherIdentifyingInfo    :
+PartNumber              :
+PoweredOn               : True
+Product                 : X570 AORUS ELITE WIFI
+Removable               : False
+Replaceable             : True
+RequirementsDescription :
+RequiresDaughterBoard   : False
+SerialNumber            : Default string
+SKU                     :
+SlotLayout              :
+SpecialRequirements     :
+Status                  : OK
+Tag                     : Base Board
+Version                 : x.x
+Weight                  :
+Width                   :
+
+
+
+--- CIM_Chassis ---
+
+PSComputerName            : localhost
+RunspaceId                : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName        : False
+__GENUS                   : 2
+__CLASS                   : Win32_SystemEnclosure
+__SUPERCLASS              : CIM_Chassis
+__DYNASTY                 : CIM_ManagedSystemElement
+__RELPATH                 : Win32_SystemEnclosure.Tag="System Enclosure 0"
+__PROPERTY_COUNT          : 37
+__DERIVATION              : {CIM_Chassis, CIM_PhysicalFrame, CIM_PhysicalPackage, CIM_PhysicalElement…}
+__SERVER                  : COOPER-DESKTOP
+__NAMESPACE               : root\cimv2
+__PATH                    : \\COOPER-DESKTOP\root\cimv2:Win32_SystemEnclosure.Tag="System Enclosure 0"
+AudibleAlarm              :
+BreachDescription         :
+CableManagementStrategy   :
+Caption                   : System Enclosure
+ChassisTypes              : {3}
+CreationClassName         : Win32_SystemEnclosure
+CurrentRequiredOrProduced :
+Depth                     :
+Description               : System Enclosure
+HeatGeneration            :
+Height                    :
+HotSwappable              :
+InstallDate               :
+LockPresent               : False
+Manufacturer              : Default string
+Model                     :
+Name                      : System Enclosure
+NumberOfPowerCords        :
+OtherIdentifyingInfo      :
+PartNumber                :
+PoweredOn                 :
+Removable                 :
+Replaceable               :
+SecurityBreach            :
+SecurityStatus            : 3
+SerialNumber              : Default string
+ServiceDescriptions       :
+ServicePhilosophy         :
+SKU                       :
+SMBIOSAssetTag            : Default string
+Status                    :
+Tag                       : System Enclosure 0
+TypeDescriptions          :
+Version                   : Default string
+VisibleAlarm              :
+Weight                    :
+Width                     :
+
+
+
+--- CIM_ConnectedTo ---
+No CIM_ConnectedTo entries found
+
+--- CIM_HeatPipe ---
+No CIM_HeatPipe entries found
+
+--- CIM_PowerSupply ---
+No CIM_PowerSupply entries found
+
+--- CIM_Slot ---
+Found 3 slot(s)
+
+PSComputerName         : localhost
+RunspaceId             : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName     : False
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 0"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : COOPER-DESKTOP
+__NAMESPACE            : root\cimv2
+__PATH                 : \\COOPER-DESKTOP\root\cimv2:Win32_SystemSlot.Tag="System Slot 0"
+BusNumber              : 6400
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {0}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 4
+Description            : System Slot
+DeviceNumber           : 72
+FunctionNumber         : 2
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 10
+Model                  :
+Name                   : System Slot
+Number                 :
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : True
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SlotDesignation        : J10
+SpecialPurpose         :
+Status                 : OK
+SupportsHotPlug        : False
+Tag                    : System Slot 0
+ThermalRating          :
+VccMixedVoltageSupport : {2}
+Version                :
+VppMixedVoltageSupport :
+
+PSComputerName         : localhost
+RunspaceId             : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName     : False
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 1"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : COOPER-DESKTOP
+__NAMESPACE            : root\cimv2
+__PATH                 : \\COOPER-DESKTOP\root\cimv2:Win32_SystemSlot.Tag="System Slot 1"
+BusNumber              : 65280
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {0}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 3
+Description            : System Slot
+DeviceNumber           : 72
+FunctionNumber         : 2
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 8
+Model                  :
+Name                   : System Slot
+Number                 :
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : True
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SlotDesignation        : J3600 Pcie x8 slot
+SpecialPurpose         :
+Status                 : OK
+SupportsHotPlug        : False
+Tag                    : System Slot 1
+ThermalRating          :
+VccMixedVoltageSupport : {2}
+Version                :
+VppMixedVoltageSupport :
+
+PSComputerName         : localhost
+RunspaceId             : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName     : False
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 2"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : COOPER-DESKTOP
+__NAMESPACE            : root\cimv2
+__PATH                 : \\COOPER-DESKTOP\root\cimv2:Win32_SystemSlot.Tag="System Slot 2"
+BusNumber              : 65280
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {0}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 3
+Description            : System Slot
+DeviceNumber           : 72
+FunctionNumber         : 2
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 7
+Model                  :
+Name                   : System Slot
+Number                 :
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : True
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SlotDesignation        : J3708 PCIE x4 slot from Bixby
+SpecialPurpose         :
+Status                 : OK
+SupportsHotPlug        : False
+Tag                    : System Slot 2
+ThermalRating          :
+VccMixedVoltageSupport : {2}
+Version                :
+VppMixedVoltageSupport :
+
+
+
+--- CIM_UserDevice ---
+Found 1 user device(s)
+
+PSComputerName              : localhost
+RunspaceId                  : 67a33baa-3898-4f22-b775-f552f724d1b6
+PSShowComputerName          : False
+__GENUS                     : 2
+__CLASS                     : Win32_DesktopMonitor
+__SUPERCLASS                : CIM_DesktopMonitor
+__DYNASTY                   : CIM_ManagedSystemElement
+__RELPATH                   : Win32_DesktopMonitor.DeviceID="DesktopMonitor1"
+__PROPERTY_COUNT            : 28
+__DERIVATION                : {CIM_DesktopMonitor, CIM_Display, CIM_UserDevice, CIM_LogicalDevice…}
+__SERVER                    : COOPER-DESKTOP
+__NAMESPACE                 : root\cimv2
+__PATH                      : \\COOPER-DESKTOP\root\cimv2:Win32_DesktopMonitor.DeviceID="DesktopMonitor1"
+Availability                : 8
+Bandwidth                   :
+Caption                     : Generic PnP Monitor
+ConfigManagerErrorCode      : 0
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_DesktopMonitor
+Description                 : Generic PnP Monitor
+DeviceID                    : DesktopMonitor1
+DisplayType                 :
+ErrorCleared                :
+ErrorDescription            :
+InstallDate                 :
+IsLocked                    :
+LastErrorCode               :
+MonitorManufacturer         : (Standard monitor types)
+MonitorType                 : Generic PnP Monitor
+Name                        : Generic PnP Monitor
+PixelsPerXLogicalInch       : 144
+PixelsPerYLogicalInch       : 144
+PNPDeviceID                 : DISPLAY\ACR0D0D\5&2A1AA051&0&UID37122
+PowerManagementCapabilities :
+PowerManagementSupported    :
+ScreenHeight                :
+ScreenWidth                 :
+Status                      : OK
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : COOPER-DESKTOP
+
+
+
+=== Script Complete ===
