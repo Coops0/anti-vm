@@ -11,14 +11,14 @@ pub enum Level {
 }
 
 impl Level {
-    fn value(&self) -> i64 {
+    const fn value(self) -> i64 {
         match self {
-            Level::Tiny => 1,
-            Level::Small => 3,
-            Level::Medium => 10,
-            Level::Large => 20,
-            Level::Extreme => 50,
-            Level::EndAll => 5000,
+            Self::Tiny => 1,
+            Self::Small => 3,
+            Self::Medium => 10,
+            Self::Large => 20,
+            Self::Extreme => 50,
+            Self::EndAll => 5000,
         }
     }
 }
@@ -90,8 +90,8 @@ impl Flags {
     }
 
     pub fn score(&self) -> i64 {
-        let penalty_score: i64 = self.penalties.iter().map(Level::value).sum();
-        let bonus_score: i64 = self.bonuses.iter().map(Level::value).sum();
+        let penalty_score: i64 = self.penalties.iter().copied().map(Level::value).sum();
+        let bonus_score: i64 = self.bonuses.iter().copied().map(Level::value).sum();
         bonus_score - penalty_score
     }
 }

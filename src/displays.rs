@@ -71,7 +71,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         }
 
         _ => flags.large_penalty(),
-    };
+    }
 
     match inspect!("connection kind", monitor.ConnectionKind()?) {
         // Laptop
@@ -80,7 +80,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         DisplayMonitorConnectionKind::Wireless => flags.small_penalty(),
         DisplayMonitorConnectionKind::Virtual => flags.large_penalty(),
         _ => flags.medium_penalty(),
-    };
+    }
 
     match inspect!("usage kind", monitor.UsageKind())? {
         DisplayMonitorUsageKind::Standard => {}
@@ -127,18 +127,17 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         "max avg full frame lum nits",
         monitor.MaxAverageFullFrameLuminanceInNits()
     ) {
-        Ok(0.0) => flags.medium_penalty(),
+        Ok(0.0) | Err(_) => flags.medium_penalty(),
         Ok(l) => {
             // If these match up then that's a good sign
             if let Ok(ml) = &max_luminance {
-                if l == *ml {
+                if (l - *ml).abs() < 0.01 {
                     flags.small_bonus();
                 } else {
                     flags.medium_penalty();
                 }
             }
         }
-        Err(_) => flags.medium_penalty(),
     }
 
     match inspect!("native res px", monitor.NativeResolutionInRawPixels()) {

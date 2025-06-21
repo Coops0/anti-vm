@@ -8,13 +8,19 @@ macro_rules! inspect {
         let value = $value;
         let t = before.elapsed().as_millis();
 
-        let t = if t == 0 {
-            String::new()
+        let t = if t != 0 {
+            format!(" (took {t}ms)")
         } else {
-            format!(" (took {}ms)", t)
+            String::new()
         };
 
-        println!("{}: {:?}{t}", $name, value);
+        let location = if cfg!(debug_assertions) {
+            format!(" ({}:{}:{})", file!(), line!(), column!())
+        } else {
+            String::new()
+        };
+
+        println!("{}: {:?}{t}{location}", $name, value);
         value
     }};
 }

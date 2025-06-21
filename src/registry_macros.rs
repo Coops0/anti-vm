@@ -157,7 +157,7 @@ pub fn execute_checks(
     flags: &mut Flags,
     key: &windows_registry::Key,
     checks: &[Check],
-) -> anyhow::Result<()> {
+)  {
     for check in checks {
         match check {
             Check::StringEquals {
@@ -250,7 +250,7 @@ pub fn execute_checks(
                 if let Ok(keys) = key.keys() {
                     for key_name in keys {
                         if let Ok(sub_key) = key.open(key_name) {
-                            let _ = execute_checks(flags, &sub_key, sub_checks);
+                            execute_checks(flags, &sub_key, sub_checks);
                         }
                     }
                 }
@@ -260,10 +260,9 @@ pub fn execute_checks(
                 checks: sub_checks,
             } => {
                 if let Ok(sub_key) = key.open(pattern) {
-                    let _ = execute_checks(flags, &sub_key, sub_checks);
+                    execute_checks(flags, &sub_key, sub_checks);
                 }
             }
         }
     }
-    Ok(())
 }

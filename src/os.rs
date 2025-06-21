@@ -100,7 +100,7 @@ fn parse_registry_system_time(bytes: [u16; 8]) -> anyhow::Result<DateTime<Utc>> 
         file_time.dwLowDateTime as u64,
     );
 
-    let windows_ticks = high << 32 | low;
+    let windows_ticks = (high << 32) | low;
     let unix_time = (windows_ticks / WINDOWS_TICK) - SEC_TO_UNIX_EPOCH;
 
     DateTime::from_timestamp(unix_time as i64, 0).context("bdt")

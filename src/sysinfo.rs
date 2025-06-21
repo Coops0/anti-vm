@@ -1,7 +1,7 @@
 use anyhow::Context;
 use windows::Win32::{
     Storage::FileSystem::{DISK_SPACE_INFORMATION, GetDiskSpaceInformationW},
-    System::SystemInformation::*,
+    System::SystemInformation::{GetPhysicallyInstalledSystemMemory, SYSTEM_INFO, GetNativeSystemInfo, GetTickCount, GetIntegratedDisplaySize}
 };
 use windows_core::w;
 
@@ -19,7 +19,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
             3..=6 => flags.large_penalty(),
             7..=8 => flags.medium_penalty(),
             _ => {}
-        };
+        }
     } else {
         flags.large_penalty();
     }
@@ -37,7 +37,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         0..=1 => flags.large_penalty(),
         2 => flags.medium_penalty(),
         _ => {}
-    };
+    }
 
     let tick_count_ms = unsafe { GetTickCount() };
     let tick_count_sec = tick_count_ms / 1000;

@@ -61,7 +61,7 @@ fn get_registry_pci() -> anyhow::Result<Vec<PciDevice>> {
     let pci_devices = root
         .keys()?
         .filter_map(|key| root.open(key).ok())
-        .flat_map(|key| {
+        .filter_map(|key| {
             let key_parents = key.keys().ok()?;
             let keys = key_parents
                 .filter_map(|s| key.open(s).ok())
@@ -69,7 +69,7 @@ fn get_registry_pci() -> anyhow::Result<Vec<PciDevice>> {
             Some(keys)
         })
         .flatten()
-        .flat_map(|key| {
+        .filter_map(|key| {
             let class_guid = key.get_string("ClassGuid").ok()?;
             let device_desc = key.get_string("DeviceDesc").ok()?;
             let hardware_id = key.get_multi_string("HardwareID").ok()?;

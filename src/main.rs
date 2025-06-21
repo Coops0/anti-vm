@@ -31,7 +31,7 @@ mod wifi_adapters;
 
 // TODO strip binary with build step too
 // TODO setup clippy checks
-fn main() -> anyhow::Result<()> {
+fn main() {
     let mut flags = Flags::new();
 
     if inspect!("os", score_os(&mut flags)).is_err() {
@@ -45,7 +45,7 @@ fn main() -> anyhow::Result<()> {
             _ => flags.large_bonus(),
         },
         Err(_) => flags.medium_penalty(),
-    };
+    }
 
     match inspect!("displays", score_displays(&mut flags)) {
         Ok(()) => {}
@@ -68,9 +68,7 @@ fn main() -> anyhow::Result<()> {
         flags.large_penalty();
     }
 
-    if inspect!("registry", score_registry(&mut flags)).is_err() {
-        flags.large_penalty();
-    }
+    score_registry(&mut flags);
 
     if inspect!("local account", get_is_local_account()).unwrap_or_default() {
         flags.medium_penalty();
@@ -95,6 +93,4 @@ fn main() -> anyhow::Result<()> {
     println!("bonuses: {:?}", flags.bonuses());
 
     println!("score: {}", flags.score());
-
-    Ok(())
 }

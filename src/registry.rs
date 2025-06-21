@@ -7,7 +7,7 @@ use crate::{
 };
 use windows_registry::LOCAL_MACHINE;
 
-pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
+pub fn score_registry(flags: &mut Flags)  {
     let rules = vec![
         rule!("HARDWARE\\DESCRIPTION\\System\\BIOS" => {
             eq!("BIOSVendor", "VMware, Inc." => EndAll),
@@ -133,9 +133,7 @@ pub fn score_registry(flags: &mut Flags) -> anyhow::Result<()> {
 
     for rule in rules {
         if let Ok(root) = LOCAL_MACHINE.open(rule.path) {
-            let _ = execute_checks(flags, &root, &rule.checks);
+            execute_checks(flags, &root, &rule.checks);
         }
     }
-
-    Ok(())
 }
