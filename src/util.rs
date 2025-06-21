@@ -19,24 +19,23 @@ macro_rules! debug_println {
 #[macro_export]
 macro_rules! inspect {
     ($name:literal, $value:expr) => {{
-        // let before = std::time::Instant::now();
+        let before = std::time::Instant::now();
         let value = $value;
-        // let t = before.elapsed().as_millis();
+        let t = before.elapsed().as_millis();
 
-        // let t = if t != 0 {
-        //     format!(" (took {t}ms)")
-        // } else {
-        //     String::new()
-        // };
+        let t = if t != 0 {
+            format!(" (took {t}ms)")
+        } else {
+            String::new()
+        };
 
-        // let location = if cfg!(debug_assertions) {
-        //     format!(" ({}:{}:{})", file!(), line!(), column!())
-        // } else {
-        //     String::new()
-        // };
+        let location = if cfg!(debug_assertions) {
+            format!(" ({}:{}:{})", file!(), line!(), column!())
+        } else {
+            String::new()
+        };
 
-        // println!( "{}: {:?}{t}{location}\n", $name, value);
-        // $crate::debug_println!("{}: {:?}{t}{location}\n", $name, value);
+        $crate::debug_println!("{}: {:?}{t}{location}", $name, value);
         value
     }}
 }

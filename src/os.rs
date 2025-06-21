@@ -87,7 +87,7 @@ fn parse_registry_system_time(bytes: [u16; 8]) -> anyhow::Result<DateTime<Utc>> 
         wMilliseconds: bytes[7],
     };
 
-    let mut file_time = FILETIME::default();
+    let mut file_time: FILETIME = unsafe { std::mem::zeroed() };
     unsafe {
         SystemTimeToFileTime(&raw const system_time, &raw mut file_time)?;
     }

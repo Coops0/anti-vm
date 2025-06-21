@@ -24,7 +24,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         flags.large_penalty();
     }
 
-    let mut system_info = SYSTEM_INFO::default();
+    let mut system_info: SYSTEM_INFO = unsafe { core::mem::zeroed() };
     unsafe {
         // Maybe should use GetSystemInfo instead?
         GetNativeSystemInfo(&raw mut system_info);
@@ -93,7 +93,7 @@ struct DiskSpaceReport {
 }
 
 fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
-    let mut disk_space_information = DISK_SPACE_INFORMATION::default();
+    let mut disk_space_information: DISK_SPACE_INFORMATION = unsafe { core::mem::zeroed() };
     unsafe {
         // Initally try to use main disk in case we are being executed from a USB drive or network
         if let Err(err) = GetDiskSpaceInformationW(w!("C:/"), &raw mut disk_space_information) {
