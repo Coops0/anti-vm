@@ -14,7 +14,7 @@ pub fn check_is_activated() -> anyhow::Result<bool> {
     let mut sl_genuine_state = SL_GEN_STATE_INVALID_LICENSE;
 
     unsafe {
-        SLIsGenuineLocal(&RPC, &mut sl_genuine_state, None)?;
+        SLIsGenuineLocal(&RPC, &raw mut sl_genuine_state, None)?;
     }
 
     Ok(sl_genuine_state == SL_GEN_STATE_IS_GENUINE)

@@ -89,7 +89,7 @@ fn parse_registry_system_time(bytes: [u16; 8]) -> anyhow::Result<DateTime<Utc>> 
 
     let mut file_time = FILETIME::default();
     unsafe {
-        SystemTimeToFileTime(&system_time, &mut file_time)?;
+        SystemTimeToFileTime(&raw const system_time, &raw mut file_time)?;
     }
 
     const WINDOWS_TICK: u64 = 10_000_000;

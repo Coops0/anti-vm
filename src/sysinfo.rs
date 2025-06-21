@@ -10,7 +10,7 @@ use crate::{flags::Flags, inspect};
 pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     let mut memory_in_kilos = 0u64;
 
-    if unsafe { GetPhysicallyInstalledSystemMemory(&mut memory_in_kilos) }.is_ok() {
+    if unsafe { GetPhysicallyInstalledSystemMemory(&raw mut memory_in_kilos) }.is_ok() {
         let memory_in_gigs = memory_in_kilos / (1024 * 1024);
         println!("memory installed: {memory_in_gigs}GB");
 
@@ -27,7 +27,7 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
     let mut system_info = SYSTEM_INFO::default();
     unsafe {
         // Maybe should use GetSystemInfo instead?
-        GetNativeSystemInfo(&mut system_info);
+        GetNativeSystemInfo(&raw mut system_info);
     }
 
     // Only useful field is processors
@@ -96,12 +96,12 @@ fn get_disk_space(flags: &mut Flags) -> anyhow::Result<DiskSpaceReport> {
     let mut disk_space_information = DISK_SPACE_INFORMATION::default();
     unsafe {
         // Initally try to use main disk in case we are being executed from a USB drive or network
-        if let Err(err) = GetDiskSpaceInformationW(w!("C:/"), &mut disk_space_information) {
+        if let Err(err) = GetDiskSpaceInformationW(w!("C:/"), &raw mut disk_space_information) {
             println!("Error getting C: disk space information: {err:?}");
             flags.large_penalty();
 
             // Fallback to current disk
-            GetDiskSpaceInformationW(None, &mut disk_space_information)?;
+            GetDiskSpaceInformationW(None, &raw mut disk_space_information)?;
         }
     }
 
