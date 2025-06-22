@@ -13,7 +13,7 @@ struct GraphicsCard {
     caption: String,
     #[serde(default)]
     video_processor: String,
-    #[serde(default)]
+    #[serde(default, rename = "DeviceID")]
     device_id: String,
     #[serde(default)]
     name: String,

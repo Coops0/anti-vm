@@ -146,7 +146,7 @@ fn get_wmi_os_stats_and_score(flags: &mut Flags) -> anyhow::Result<DateTime<Fixe
     debug_println!("operating system sku: {}", os.operating_system_sku);
 
     if PROS
-        .into_iter()
+        .iter()
         .map(|sku| sku.0)
         .any(|sku| sku == os.operating_system_sku)
     {

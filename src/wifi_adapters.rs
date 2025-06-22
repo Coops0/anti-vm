@@ -35,7 +35,7 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
     let mut p_if_list: *mut WLAN_INTERFACE_INFO_LIST = null_mut();
 
     let dw_result =
-        unsafe { WlanOpenHandle(DW_MAX_CLIENT, None, &mut dw_cur_version, &mut h_client.0) };
+        unsafe { WlanOpenHandle(DW_MAX_CLIENT, None, &raw mut dw_cur_version, &raw mut h_client.0) };
 
     if dw_result != ERROR_SUCCESS.0 {
         bail!("WlanOpenHandle failed with error: {dw_result:?}");
@@ -45,7 +45,7 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
         WlanEnumInterfaces(
             h_client.0,
             None,
-            &raw mut p_if_list as *mut *mut WLAN_INTERFACE_INFO_LIST,
+            &raw mut p_if_list,
         )
     };
 
@@ -56,7 +56,7 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
     let len = unsafe { (*p_if_list).dwNumberOfItems } as usize;
 
     let devices_len = (0..len)
-        .map(|i| unsafe { &(*p_if_list).InterfaceInfo[i] })
+        .filter_map(|i| unsafe { (*p_if_list).InterfaceInfo.get(i) })
         .filter(|p_if_info| {
             if p_if_info.InterfaceGuid == GUID::zeroed() {
                 flags.large_penalty();
@@ -94,7 +94,7 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
 struct HandleWrapper(pub HANDLE);
 
 impl HandleWrapper {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self(unsafe { core::mem::zeroed() })
     }
 }

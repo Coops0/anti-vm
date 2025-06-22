@@ -1,11 +1,7 @@
 #![feature(stmt_expr_attributes)]
 
 use crate::{
-    activated::check_is_activated, battery::get_battery,
-    bluetooth_adapters::check_if_bluetooth_adapter, displays::score_displays, flags::Flags,
-    graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os,
-    registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices,
-    usb_devices::score_usb_devices, wifi_adapters::score_wifi_adapters,
+    activated::check_is_activated, battery::get_battery, bluetooth_adapters::check_if_bluetooth_adapter, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
 };
 
 mod activated;
@@ -21,6 +17,7 @@ mod registry_macros;
 mod sysinfo;
 mod system_devices;
 mod usb_devices;
+mod various_wmi;
 mod util;
 mod wifi_adapters;
 
@@ -86,6 +83,10 @@ fn main() {
     }
 
     if !inspect!("bluetooth", check_if_bluetooth_adapter()).unwrap_or_default() {
+        flags.large_penalty();
+    }
+
+    if inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
         flags.large_penalty();
     }
 

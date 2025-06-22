@@ -1,0 +1,824 @@
+=== System Information WMI Query ===
+
+--- Win32_ComputerSystem ---
+ChassisBootupState: 3
+ChassisSKUNumber:
+KeyboardPasswordStatus: 3
+Manufacturer: Gigabyte Technology Co., Ltd.
+Model: X570 AORUS ELITE WIFI
+Name: DESKTOP-1LU7UUV
+PowerOnPasswordStatus: 0
+PowerSupplyState: 3
+ResetCapability: 1
+SystemType: x64-based PC
+ThermalState: 3
+
+--- Win32_BIOS ---
+
+
+PSComputerName                 : DESKTOP-1LU7UUV
+Status                         : OK
+Name                           : VMW201.00V.24006586.B64.2406042154
+Caption                        : VMW201.00V.24006586.B64.2406042154
+SMBIOSPresent                  : True
+__GENUS                        : 2
+__CLASS                        : Win32_BIOS
+__SUPERCLASS                   : CIM_BIOSElement
+__DYNASTY                      : CIM_ManagedSystemElement
+__RELPATH                      : Win32_BIOS.Name="VMW201.00V.24006586.B64.2406042154",SoftwareElementID="VMW201.00V.240
+                                 06586.B64.2406042154",SoftwareElementState=3,TargetOperatingSystem=0,Version="INTEL
+                                 - 6040000"
+__PROPERTY_COUNT               : 31
+__DERIVATION                   : {CIM_BIOSElement, CIM_SoftwareElement, CIM_LogicalElement, CIM_ManagedSystemElement}
+__SERVER                       : DESKTOP-1LU7UUV
+__NAMESPACE                    : root\cimv2
+__PATH                         : \\DESKTOP-1LU7UUV\root\cimv2:Win32_BIOS.Name="VMW201.00V.24006586.B64.2406042154",Soft
+                                 wareElementID="VMW201.00V.24006586.B64.2406042154",SoftwareElementState=3,TargetOperat
+                                 ingSystem=0,Version="INTEL  - 6040000"
+BiosCharacteristics            : {4, 7, 9, 11...}
+BIOSVersion                    : {INTEL  - 6040000, VMW201.00V.24006586.B64.2406042154, VMware, Inc. - 10000}
+BuildNumber                    :
+CodeSet                        :
+CurrentLanguage                :
+Description                    : VMW201.00V.24006586.B64.2406042154
+EmbeddedControllerMajorVersion : 255
+EmbeddedControllerMinorVersion : 255
+IdentificationCode             :
+InstallableLanguages           :
+InstallDate                    :
+LanguageEdition                :
+ListOfLanguages                :
+Manufacturer                   : VMware, Inc.
+OtherTargetOS                  :
+PrimaryBIOS                    : True
+ReleaseDate                    : 20240604000000.000000+000
+SerialNumber                   : Default string
+SMBIOSBIOSVersion              : VMW201.00V.24006586.B64.2406042154
+SMBIOSMajorVersion             : 2
+SMBIOSMinorVersion             : 7
+SoftwareElementID              : VMW201.00V.24006586.B64.2406042154
+SoftwareElementState           : 3
+SystemBiosMajorVersion         : 255
+SystemBiosMinorVersion         : 255
+TargetOperatingSystem          : 0
+Version                        : INTEL  - 6040000
+Scope                          : System.Management.ManagementScope
+Path                           : \\DESKTOP-1LU7UUV\root\cimv2:Win32_BIOS.Name="VMW201.00V.24006586.B64.2406042154",Soft
+                                 wareElementID="VMW201.00V.24006586.B64.2406042154",SoftwareElementState=3,TargetOperat
+                                 ingSystem=0,Version="INTEL  - 6040000"
+Options                        : System.Management.ObjectGetOptions
+ClassPath                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_BIOS
+Properties                     : {BiosCharacteristics, BIOSVersion, BuildNumber, Caption...}
+SystemProperties               : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                     : {dynamic, Locale, provider, UUID}
+Site                           :
+Container                      :
+
+
+
+
+
+--- CIM_Card ---
+Found 1 card(s)
+
+
+PSComputerName          : DESKTOP-1LU7UUV
+Status                  : OK
+Name                    : Base Board
+PoweredOn               : True
+__GENUS                 : 2
+__CLASS                 : Win32_BaseBoard
+__SUPERCLASS            : CIM_Card
+__DYNASTY               : CIM_ManagedSystemElement
+__RELPATH               : Win32_BaseBoard.Tag="Base Board"
+__PROPERTY_COUNT        : 29
+__DERIVATION            : {CIM_Card, CIM_PhysicalPackage, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER                : DESKTOP-1LU7UUV
+__NAMESPACE             : root\cimv2
+__PATH                  : \\DESKTOP-1LU7UUV\root\cimv2:Win32_BaseBoard.Tag="Base Board"
+Caption                 : Base Board
+ConfigOptions           :
+CreationClassName       : Win32_BaseBoard
+Depth                   :
+Description             : Base Board
+Height                  :
+HostingBoard            : False
+HotSwappable            : False
+InstallDate             :
+Manufacturer            : Intel Corporation
+Model                   :
+OtherIdentifyingInfo    :
+PartNumber              :
+Product                 : 440BX Desktop Reference Platform
+Removable               : False
+Replaceable             : False
+RequirementsDescription :
+RequiresDaughterBoard   : False
+SerialNumber            : None
+SKU                     :
+SlotLayout              :
+SpecialRequirements     :
+Tag                     : Base Board
+Version                 : None
+Weight                  :
+Width                   :
+Scope                   : System.Management.ManagementScope
+Path                    : \\DESKTOP-1LU7UUV\root\cimv2:Win32_BaseBoard.Tag="Base Board"
+Options                 : System.Management.ObjectGetOptions
+ClassPath               : \\DESKTOP-1LU7UUV\root\cimv2:Win32_BaseBoard
+Properties              : {Caption, ConfigOptions, CreationClassName, Depth...}
+SystemProperties        : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers              : {dynamic, Locale, provider, UUID}
+Site                    :
+Container               :
+
+
+
+
+
+--- CIM_Chassis ---
+
+
+PSComputerName            : DESKTOP-1LU7UUV
+Tag                       : System Enclosure 0
+Status                    :
+Name                      : System Enclosure
+SecurityStatus            : 3
+__GENUS                   : 2
+__CLASS                   : Win32_SystemEnclosure
+__SUPERCLASS              : CIM_Chassis
+__DYNASTY                 : CIM_ManagedSystemElement
+__RELPATH                 : Win32_SystemEnclosure.Tag="System Enclosure 0"
+__PROPERTY_COUNT          : 37
+__DERIVATION              : {CIM_Chassis, CIM_PhysicalFrame, CIM_PhysicalPackage, CIM_PhysicalElement...}
+__SERVER                  : DESKTOP-1LU7UUV
+__NAMESPACE               : root\cimv2
+__PATH                    : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemEnclosure.Tag="System Enclosure 0"
+AudibleAlarm              :
+BreachDescription         :
+CableManagementStrategy   :
+Caption                   : System Enclosure
+ChassisTypes              : {1}
+CreationClassName         : Win32_SystemEnclosure
+CurrentRequiredOrProduced :
+Depth                     :
+Description               : System Enclosure
+HeatGeneration            :
+Height                    :
+HotSwappable              :
+InstallDate               :
+LockPresent               : False
+Manufacturer              : No Enclosure
+Model                     :
+NumberOfPowerCords        :
+OtherIdentifyingInfo      :
+PartNumber                :
+PoweredOn                 :
+Removable                 :
+Replaceable               :
+SecurityBreach            :
+SerialNumber              : None
+ServiceDescriptions       :
+ServicePhilosophy         :
+SKU                       :
+SMBIOSAssetTag            : No Asset Tag
+TypeDescriptions          :
+Version                   : N/A
+VisibleAlarm              :
+Weight                    :
+Width                     :
+Scope                     : System.Management.ManagementScope
+Path                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemEnclosure.Tag="System Enclosure 0"
+Options                   : System.Management.ObjectGetOptions
+ClassPath                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemEnclosure
+Properties                : {AudibleAlarm, BreachDescription, CableManagementStrategy, Caption...}
+SystemProperties          : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                : {dynamic, Locale, provider, UUID}
+Site                      :
+Container                 :
+
+
+
+
+
+--- CIM_ConnectedTo ---
+No CIM_ConnectedTo entries found
+
+--- CIM_HeatPipe ---
+No CIM_HeatPipe entries found
+
+--- CIM_PowerSupply ---
+No CIM_PowerSupply entries found
+
+--- CIM_Slot ---
+Found 6 slot(s)
+
+
+PSComputerName         : DESKTOP-1LU7UUV
+Status                 : OK
+SlotDesignation        : PCI Slot J11
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 0"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : DESKTOP-1LU7UUV
+__NAMESPACE            : root\cimv2
+__PATH                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 0"
+BusNumber              : 30720
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {43}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 4
+Description            : System Slot
+DeviceNumber           : 80
+FunctionNumber         : 0
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 2
+Model                  :
+Name                   : System Slot
+Number                 : 1
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : False
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SpecialPurpose         :
+SupportsHotPlug        : False
+Tag                    : System Slot 0
+ThermalRating          :
+VccMixedVoltageSupport : {3, 2}
+Version                :
+VppMixedVoltageSupport :
+Scope                  : System.Management.ManagementScope
+Path                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 0"
+Options                : System.Management.ObjectGetOptions
+ClassPath              : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot
+Properties             : {BusNumber, Caption, ConnectorPinout, ConnectorType...}
+SystemProperties       : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers             : {dynamic, Locale, provider, UUID}
+Site                   :
+Container              :
+
+PSComputerName         : DESKTOP-1LU7UUV
+Status                 : OK
+SlotDesignation        : PCI Slot J12
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 1"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : DESKTOP-1LU7UUV
+__NAMESPACE            : root\cimv2
+__PATH                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 1"
+BusNumber              : 32768
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {43}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 3
+Description            : System Slot
+DeviceNumber           : 80
+FunctionNumber         : 0
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 2
+Model                  :
+Name                   : System Slot
+Number                 : 2
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : False
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SpecialPurpose         :
+SupportsHotPlug        : False
+Tag                    : System Slot 1
+ThermalRating          :
+VccMixedVoltageSupport : {3, 2}
+Version                :
+VppMixedVoltageSupport :
+Scope                  : System.Management.ManagementScope
+Path                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 1"
+Options                : System.Management.ObjectGetOptions
+ClassPath              : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot
+Properties             : {BusNumber, Caption, ConnectorPinout, ConnectorType...}
+SystemProperties       : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers             : {dynamic, Locale, provider, UUID}
+Site                   :
+Container              :
+
+PSComputerName         : DESKTOP-1LU7UUV
+Status                 : OK
+SlotDesignation        : PCI Slot J13
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 2"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : DESKTOP-1LU7UUV
+__NAMESPACE            : root\cimv2
+__PATH                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 2"
+BusNumber              : 34816
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {43}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 4
+Description            : System Slot
+DeviceNumber           : 80
+FunctionNumber         : 0
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 2
+Model                  :
+Name                   : System Slot
+Number                 : 3
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : False
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SpecialPurpose         :
+SupportsHotPlug        : False
+Tag                    : System Slot 2
+ThermalRating          :
+VccMixedVoltageSupport : {3, 2}
+Version                :
+VppMixedVoltageSupport :
+Scope                  : System.Management.ManagementScope
+Path                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 2"
+Options                : System.Management.ObjectGetOptions
+ClassPath              : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot
+Properties             : {BusNumber, Caption, ConnectorPinout, ConnectorType...}
+SystemProperties       : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers             : {dynamic, Locale, provider, UUID}
+Site                   :
+Container              :
+
+PSComputerName         : DESKTOP-1LU7UUV
+Status                 : OK
+SlotDesignation        : PCI Slot J14
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 3"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : DESKTOP-1LU7UUV
+__NAMESPACE            : root\cimv2
+__PATH                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 3"
+BusNumber              : 36864
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {43}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 3
+Description            : System Slot
+DeviceNumber           : 80
+FunctionNumber         : 0
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 2
+Model                  :
+Name                   : System Slot
+Number                 : 4
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : False
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SpecialPurpose         :
+SupportsHotPlug        : False
+Tag                    : System Slot 3
+ThermalRating          :
+VccMixedVoltageSupport : {3, 2}
+Version                :
+VppMixedVoltageSupport :
+Scope                  : System.Management.ManagementScope
+Path                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 3"
+Options                : System.Management.ObjectGetOptions
+ClassPath              : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot
+Properties             : {BusNumber, Caption, ConnectorPinout, ConnectorType...}
+SystemProperties       : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers             : {dynamic, Locale, provider, UUID}
+Site                   :
+Container              :
+
+PSComputerName         : DESKTOP-1LU7UUV
+Status                 : OK
+SlotDesignation        : PCI Slot J15
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 4"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : DESKTOP-1LU7UUV
+__NAMESPACE            : root\cimv2
+__PATH                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 4"
+BusNumber              : 38912
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {43}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 3
+Description            : System Slot
+DeviceNumber           : 80
+FunctionNumber         : 0
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 2
+Model                  :
+Name                   : System Slot
+Number                 : 5
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : False
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SpecialPurpose         :
+SupportsHotPlug        : False
+Tag                    : System Slot 4
+ThermalRating          :
+VccMixedVoltageSupport : {3, 2}
+Version                :
+VppMixedVoltageSupport :
+Scope                  : System.Management.ManagementScope
+Path                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 4"
+Options                : System.Management.ObjectGetOptions
+ClassPath              : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot
+Properties             : {BusNumber, Caption, ConnectorPinout, ConnectorType...}
+SystemProperties       : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers             : {dynamic, Locale, provider, UUID}
+Site                   :
+Container              :
+
+PSComputerName         : DESKTOP-1LU7UUV
+Status                 : OK
+SlotDesignation        : PCI Slot J16
+__GENUS                : 2
+__CLASS                : Win32_SystemSlot
+__SUPERCLASS           : CIM_Slot
+__DYNASTY              : CIM_ManagedSystemElement
+__RELPATH              : Win32_SystemSlot.Tag="System Slot 5"
+__PROPERTY_COUNT       : 35
+__DERIVATION           : {CIM_Slot, CIM_PhysicalConnector, CIM_PhysicalElement, CIM_ManagedSystemElement}
+__SERVER               : DESKTOP-1LU7UUV
+__NAMESPACE            : root\cimv2
+__PATH                 : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 5"
+BusNumber              : 40960
+Caption                : System Slot
+ConnectorPinout        :
+ConnectorType          : {43}
+CreationClassName      : Win32_SystemSlot
+CurrentUsage           : 3
+Description            : System Slot
+DeviceNumber           : 80
+FunctionNumber         : 0
+HeightAllowed          :
+InstallDate            :
+LengthAllowed          :
+Manufacturer           :
+MaxDataWidth           : 2
+Model                  :
+Name                   : System Slot
+Number                 : 6
+OtherIdentifyingInfo   :
+PartNumber             :
+PMESignal              : False
+PoweredOn              :
+PurposeDescription     :
+SegmentGroupNumber     : 0
+SerialNumber           :
+Shared                 : False
+SKU                    :
+SpecialPurpose         :
+SupportsHotPlug        : False
+Tag                    : System Slot 5
+ThermalRating          :
+VccMixedVoltageSupport : {3, 2}
+Version                :
+VppMixedVoltageSupport :
+Scope                  : System.Management.ManagementScope
+Path                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot.Tag="System Slot 5"
+Options                : System.Management.ObjectGetOptions
+ClassPath              : \\DESKTOP-1LU7UUV\root\cimv2:Win32_SystemSlot
+Properties             : {BusNumber, Caption, ConnectorPinout, ConnectorType...}
+SystemProperties       : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers             : {dynamic, Locale, provider, UUID}
+Site                   :
+Container              :
+
+
+
+
+
+--- CIM_UserDevice ---
+Found 5 user device(s)
+
+
+PSComputerName              : DESKTOP-1LU7UUV
+__GENUS                     : 2
+__CLASS                     : Win32_Keyboard
+__SUPERCLASS                : CIM_Keyboard
+__DYNASTY                   : CIM_ManagedSystemElement
+__RELPATH                   : Win32_Keyboard.DeviceID="ACPI\\PNP0303\\4&1BD7F811&0"
+__PROPERTY_COUNT            : 23
+__DERIVATION                : {CIM_Keyboard, CIM_UserDevice, CIM_LogicalDevice, CIM_LogicalElement...}
+__SERVER                    : DESKTOP-1LU7UUV
+__NAMESPACE                 : root\cimv2
+__PATH                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_Keyboard.DeviceID="ACPI\\PNP0303\\4&1BD7F811&0"
+Availability                :
+Caption                     : Enhanced (101- or 102-key)
+ConfigManagerErrorCode      : 0
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_Keyboard
+Description                 : Standard PS/2 Keyboard
+DeviceID                    : ACPI\PNP0303\4&1BD7F811&0
+ErrorCleared                :
+ErrorDescription            :
+InstallDate                 :
+IsLocked                    :
+LastErrorCode               :
+Layout                      : 00000409
+Name                        : Enhanced (101- or 102-key)
+NumberOfFunctionKeys        : 12
+Password                    :
+PNPDeviceID                 : ACPI\PNP0303\4&1BD7F811&0
+PowerManagementCapabilities :
+PowerManagementSupported    : False
+Status                      : OK
+StatusInfo                  :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-1LU7UUV
+Scope                       : System.Management.ManagementScope
+Path                        : \\DESKTOP-1LU7UUV\root\cimv2:Win32_Keyboard.DeviceID="ACPI\\PNP0303\\4&1BD7F811&0"
+Options                     : System.Management.ObjectGetOptions
+ClassPath                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_Keyboard
+Properties                  : {Availability, Caption, ConfigManagerErrorCode, ConfigManagerUserConfig...}
+SystemProperties            : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                  : {dynamic, Locale, provider, UUID}
+Site                        :
+Container                   :
+
+PSComputerName              : DESKTOP-1LU7UUV
+DeviceID                    : DesktopMonitor1
+Name                        : Generic Non-PnP Monitor
+PixelsPerXLogicalInch       : 96
+PixelsPerYLogicalInch       : 96
+ScreenHeight                :
+ScreenWidth                 :
+IsLocked                    :
+LastErrorCode               :
+Status                      : OK
+StatusInfo                  :
+__GENUS                     : 2
+__CLASS                     : Win32_DesktopMonitor
+__SUPERCLASS                : CIM_DesktopMonitor
+__DYNASTY                   : CIM_ManagedSystemElement
+__RELPATH                   : Win32_DesktopMonitor.DeviceID="DesktopMonitor1"
+__PROPERTY_COUNT            : 28
+__DERIVATION                : {CIM_DesktopMonitor, CIM_Display, CIM_UserDevice, CIM_LogicalDevice...}
+__SERVER                    : DESKTOP-1LU7UUV
+__NAMESPACE                 : root\cimv2
+__PATH                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_DesktopMonitor.DeviceID="DesktopMonitor1"
+Availability                : 8
+Bandwidth                   :
+Caption                     : Generic Non-PnP Monitor
+ConfigManagerErrorCode      : 0
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_DesktopMonitor
+Description                 : Generic Non-PnP Monitor
+DisplayType                 :
+ErrorCleared                :
+ErrorDescription            :
+InstallDate                 :
+MonitorManufacturer         : (Standard monitor types)
+MonitorType                 : Generic Non-PnP Monitor
+PNPDeviceID                 : DISPLAY\DEFAULT_MONITOR\4&427137E&0&UID0
+PowerManagementCapabilities :
+PowerManagementSupported    :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-1LU7UUV
+Scope                       : System.Management.ManagementScope
+Path                        : \\DESKTOP-1LU7UUV\root\cimv2:Win32_DesktopMonitor.DeviceID="DesktopMonitor1"
+Options                     : System.Management.ObjectGetOptions
+ClassPath                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_DesktopMonitor
+Properties                  : {Availability, Bandwidth, Caption, ConfigManagerErrorCode...}
+SystemProperties            : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                  : {dynamic, Locale, provider, UUID}
+Site                        :
+Container                   :
+
+PSComputerName              : DESKTOP-1LU7UUV
+__GENUS                     : 2
+__CLASS                     : Win32_PointingDevice
+__SUPERCLASS                : CIM_PointingDevice
+__DYNASTY                   : CIM_ManagedSystemElement
+__RELPATH                   : Win32_PointingDevice.DeviceID="USB\\VID_0E0F&PID_0003&MI_00\\7&220035BB&0&0000"
+__PROPERTY_COUNT            : 33
+__DERIVATION                : {CIM_PointingDevice, CIM_UserDevice, CIM_LogicalDevice, CIM_LogicalElement...}
+__SERVER                    : DESKTOP-1LU7UUV
+__NAMESPACE                 : root\cimv2
+__PATH                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice.DeviceID="USB\\VID_0E0F&PID_0003&MI_00\
+                              \7&220035BB&0&0000"
+Availability                :
+Caption                     : USB Input Device
+ConfigManagerErrorCode      : 0
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PointingDevice
+Description                 : USB Input Device
+DeviceID                    : USB\VID_0E0F&PID_0003&MI_00\7&220035BB&0&0000
+DeviceInterface             : 162
+DoubleSpeedThreshold        :
+ErrorCleared                :
+ErrorDescription            :
+Handedness                  :
+HardwareType                : USB Input Device
+InfFileName                 : input.inf
+InfSection                  : HID_Inst.NT
+InstallDate                 :
+IsLocked                    :
+LastErrorCode               :
+Manufacturer                : (Standard system devices)
+Name                        : USB Input Device
+NumberOfButtons             : 0
+PNPDeviceID                 : USB\VID_0E0F&PID_0003&MI_00\7&220035BB&0&0000
+PointingType                : 2
+PowerManagementCapabilities :
+PowerManagementSupported    : False
+QuadSpeedThreshold          :
+Resolution                  :
+SampleRate                  :
+Status                      : OK
+StatusInfo                  :
+Synch                       :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-1LU7UUV
+Scope                       : System.Management.ManagementScope
+Path                        : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice.DeviceID="USB\\VID_0E0F&PID_0003&MI_00\
+                              \7&220035BB&0&0000"
+Options                     : System.Management.ObjectGetOptions
+ClassPath                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice
+Properties                  : {Availability, Caption, ConfigManagerErrorCode, ConfigManagerUserConfig...}
+SystemProperties            : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                  : {dynamic, Locale, provider, UUID}
+Site                        :
+Container                   :
+
+PSComputerName              : DESKTOP-1LU7UUV
+__GENUS                     : 2
+__CLASS                     : Win32_PointingDevice
+__SUPERCLASS                : CIM_PointingDevice
+__DYNASTY                   : CIM_ManagedSystemElement
+__RELPATH                   : Win32_PointingDevice.DeviceID="USB\\VID_0E0F&PID_0003&MI_01\\7&220035BB&0&0001"
+__PROPERTY_COUNT            : 33
+__DERIVATION                : {CIM_PointingDevice, CIM_UserDevice, CIM_LogicalDevice, CIM_LogicalElement...}
+__SERVER                    : DESKTOP-1LU7UUV
+__NAMESPACE                 : root\cimv2
+__PATH                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice.DeviceID="USB\\VID_0E0F&PID_0003&MI_01\
+                              \7&220035BB&0&0001"
+Availability                :
+Caption                     : USB Input Device
+ConfigManagerErrorCode      : 0
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PointingDevice
+Description                 : USB Input Device
+DeviceID                    : USB\VID_0E0F&PID_0003&MI_01\7&220035BB&0&0001
+DeviceInterface             : 162
+DoubleSpeedThreshold        :
+ErrorCleared                :
+ErrorDescription            :
+Handedness                  :
+HardwareType                : USB Input Device
+InfFileName                 : input.inf
+InfSection                  : HID_Inst.NT
+InstallDate                 :
+IsLocked                    :
+LastErrorCode               :
+Manufacturer                : (Standard system devices)
+Name                        : USB Input Device
+NumberOfButtons             : 0
+PNPDeviceID                 : USB\VID_0E0F&PID_0003&MI_01\7&220035BB&0&0001
+PointingType                : 2
+PowerManagementCapabilities :
+PowerManagementSupported    : False
+QuadSpeedThreshold          :
+Resolution                  :
+SampleRate                  :
+Status                      : OK
+StatusInfo                  :
+Synch                       :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-1LU7UUV
+Scope                       : System.Management.ManagementScope
+Path                        : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice.DeviceID="USB\\VID_0E0F&PID_0003&MI_01\
+                              \7&220035BB&0&0001"
+Options                     : System.Management.ObjectGetOptions
+ClassPath                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice
+Properties                  : {Availability, Caption, ConfigManagerErrorCode, ConfigManagerUserConfig...}
+SystemProperties            : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                  : {dynamic, Locale, provider, UUID}
+Site                        :
+Container                   :
+
+PSComputerName              : DESKTOP-1LU7UUV
+__GENUS                     : 2
+__CLASS                     : Win32_PointingDevice
+__SUPERCLASS                : CIM_PointingDevice
+__DYNASTY                   : CIM_ManagedSystemElement
+__RELPATH                   : Win32_PointingDevice.DeviceID="ACPI\\VMW0003\\4&1BD7F811&0"
+__PROPERTY_COUNT            : 33
+__DERIVATION                : {CIM_PointingDevice, CIM_UserDevice, CIM_LogicalDevice, CIM_LogicalElement...}
+__SERVER                    : DESKTOP-1LU7UUV
+__NAMESPACE                 : root\cimv2
+__PATH                      : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice.DeviceID="ACPI\\VMW0003\\4&1BD7F811&0"
+Availability                :
+Caption                     : PS/2 Compatible Mouse
+ConfigManagerErrorCode      : 0
+ConfigManagerUserConfig     : False
+CreationClassName           : Win32_PointingDevice
+Description                 : PS/2 Compatible Mouse
+DeviceID                    : ACPI\VMW0003\4&1BD7F811&0
+DeviceInterface             : 4
+DoubleSpeedThreshold        :
+ErrorCleared                :
+ErrorDescription            :
+Handedness                  :
+HardwareType                : PS/2 Compatible Mouse
+InfFileName                 : msmouse.inf
+InfSection                  : PS2_Inst
+InstallDate                 :
+IsLocked                    :
+LastErrorCode               :
+Manufacturer                : Microsoft
+Name                        : PS/2 Compatible Mouse
+NumberOfButtons             : 0
+PNPDeviceID                 : ACPI\VMW0003\4&1BD7F811&0
+PointingType                : 2
+PowerManagementCapabilities :
+PowerManagementSupported    : False
+QuadSpeedThreshold          :
+Resolution                  :
+SampleRate                  :
+Status                      : OK
+StatusInfo                  :
+Synch                       :
+SystemCreationClassName     : Win32_ComputerSystem
+SystemName                  : DESKTOP-1LU7UUV
+Scope                       : System.Management.ManagementScope
+Path                        : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice.DeviceID="ACPI\\VMW0003\\4&1BD7F811&0"
+Options                     : System.Management.ObjectGetOptions
+ClassPath                   : \\DESKTOP-1LU7UUV\root\cimv2:Win32_PointingDevice
+Properties                  : {Availability, Caption, ConfigManagerErrorCode, ConfigManagerUserConfig...}
+SystemProperties            : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
+Qualifiers                  : {dynamic, Locale, provider, UUID}
+Site                        :
+Container                   :
+
+
+
+
+
+=== Script Complete ===

@@ -1,0 +1,37 @@
+Win32_ComputerSystem
+    PowerOnPasswordStatus: 3 (means Unknown) (SUSPICIOUS)
+    Manufacturer: contains VMware
+    Model: contains VMware
+
+Win32_BIOS
+    Name: contains VMW
+    Caption: contains VMW
+    __RELPATH: contains VMW
+    __PATH: contains VMW
+    BIOSVersion: contains VMW or VMware
+    Description: contains VMW
+    Manufacturer: contains VMware
+    SMBIOSBIOSVersion: contains VMW
+    SoftwareElementID: contains VMW
+    Path: contains VMW
+    SerialNumber: contains VMware
+
+CIM_UserDevice
+    __DYNASTY: contains VID_0E0F
+    __PATH: contains VID_0E0F
+    DeviceID: contains VID_0E0F OR contains VMW
+    PNPDeviceID: contains VID_0E0F OR contains VMW
+    Path: contains VID_0E0F OR contains VMW
+    __RELPATH: contains VID_0E0F OR contains VMW
+    __NAMESPACE: contains VID_0E0F
+    Caption: contains VMware
+    Description: contains VMware
+    HardwareType: contains VMware
+
+CIM_Card
+    Product: contains Desktop Reference Platform
+    Product: 440BX (SUSPICIOUS)
+
+CIM_Chassis
+    ChassisTypes: contains {1}
+    !!! AND Manufacturer: contains No Enclosure
