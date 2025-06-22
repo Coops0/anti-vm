@@ -1,7 +1,10 @@
 use anyhow::Context;
 use windows::Win32::{
     Storage::FileSystem::{DISK_SPACE_INFORMATION, GetDiskSpaceInformationW},
-    System::SystemInformation::{GetPhysicallyInstalledSystemMemory, SYSTEM_INFO, GetNativeSystemInfo, GetTickCount, GetIntegratedDisplaySize}
+    System::SystemInformation::{
+        GetIntegratedDisplaySize, GetNativeSystemInfo, GetPhysicallyInstalledSystemMemory,
+        GetTickCount, SYSTEM_INFO,
+    },
 };
 use windows_core::w;
 
@@ -20,6 +23,10 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
             7..=8 => flags.medium_penalty(),
             _ => {}
         }
+
+        if memory_in_gigs % 2 != 0 {
+            flags.large_penalty();
+        }
     } else {
         flags.large_penalty();
     }
@@ -30,14 +37,17 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         GetNativeSystemInfo(&raw mut system_info);
     }
 
-    // Only useful field is processors
-    // The architecture is the same as host architecture
-    debug_println!("number of processors: {}", system_info.dwNumberOfProcessors);
-    match system_info.dwNumberOfProcessors {
+    let processors = system_info.dwNumberOfProcessors;
+    debug_println!("number of processors: {processors}");
+    match processors {
         0..=1 => flags.large_penalty(),
         2 => flags.medium_penalty(),
         _ => {}
     }
+
+    // if processors % 2 != 0 {
+    //     flags.large_penalty();
+    // }
 
     let tick_count_ms = unsafe { GetTickCount() };
     let tick_count_sec = tick_count_ms / 1000;
@@ -73,7 +83,9 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         .total_space_gig
         .saturating_sub(disk_space.free_space_gig + EST_WINDOWS_DIR_SIZE_GIG);
 
-    debug_println!("used space minus windows installation: {used_space_minus_windows_installation}GB");
+    debug_println!(
+        "used space minus windows installation: {used_space_minus_windows_installation}GB"
+    );
 
     match used_space_minus_windows_installation {
         0..=3 => flags.large_penalty(),

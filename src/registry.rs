@@ -1,5 +1,5 @@
 use crate::{
-    any_value_contains, contains, contains_any, eq,
+    any_value_contains, contains, eq,
     flags::{Flags, Level},
     key_contains, recurse, recurse_into,
     registry_macros::execute_checks,
@@ -20,7 +20,7 @@ pub fn score_registry(flags: &mut Flags)  {
             recurse!(
                 recurse_into!("Elements" => {
                     recurse!(
-                        contains_any!("Element", "VMware" | "VBOX" => EndAll),
+                        contains!("Element", "VMware" | "VBOX" => EndAll),
                     )
                 })
             ),
@@ -87,8 +87,8 @@ pub fn score_registry(flags: &mut Flags)  {
         rule!("SYSTEM\\ControlSet001\\Enum\\PCI" => {
             recurse!(
                 recurse!(
-                    contains_any!("DeviceDesc", "vmwarebusdevicedesc" | "VMware VMCI" => Large),
-                    contains_any!("DeviceDesc", "Microsoft PS/2" => Medium)
+                    contains!("DeviceDesc", "vmwarebusdevicedesc" | "VMware VMCI" => Large),
+                    contains!("DeviceDesc", "Microsoft PS/2" => Medium)
                 )
             ),
         }),
@@ -101,9 +101,9 @@ pub fn score_registry(flags: &mut Flags)  {
                 ),
                 recurse!(
                     recurse!(
-                        contains_any!("FriendlyName", "NECVMWar" | "VMware" | "VBOX" => Large),
-                        contains_any!("HardwareID", "VMware" | "VBOX" => Large),
-                        contains_any!("DeviceDesc", "Microsoft PS/2" => Medium)
+                        contains!("FriendlyName", "NECVMWar" | "VMware" | "VBOX" => Large),
+                        contains!("HardwareID", "VMware" | "VBOX" => Large),
+                        contains!("DeviceDesc", "Microsoft PS/2" => Medium)
                     )
                 )
             ),

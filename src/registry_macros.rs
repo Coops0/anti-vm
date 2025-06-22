@@ -7,19 +7,9 @@ pub struct RegistryRule {
     pub checks: Vec<Check>,
 }
 pub enum Check {
-    StringEquals {
+    StringStartsWithAny {
         key: &'static str,
-        value: &'static str,
-        penalty: Level,
-    },
-    StringStartsWith {
-        key: &'static str,
-        value: &'static str,
-        penalty: Level,
-    },
-    StringContains {
-        key: &'static str,
-        value: &'static str,
+        values: Vec<&'static str>,
         penalty: Level,
     },
     StringEqualsAny {
@@ -49,41 +39,41 @@ pub enum Check {
     },
 }
 
-#[macro_export]
-macro_rules! eq {
-    ($key:literal, $value:literal => $level:ident) => {
-        $crate::registry_macros::Check::StringEquals {
-            key: $key,
-            value: $value,
-            penalty: Level::$level,
-        }
-    };
-}
+// #[macro_export]
+// macro_rules! eq {
+//     ($key:literal, $value:literal => $level:ident) => {
+//         $crate::registry_macros::Check::StringEquals {
+//             key: $key,
+//             value: $value,
+//             penalty: Level::$level,
+//         }
+//     };
+// }
 
 #[macro_export]
 macro_rules! starts_with {
-    ($key:literal, $value:literal => $level:ident) => {
-        $crate::registry_macros::Check::StringStartsWith {
+    ($key:literal, $($value:literal)|+ => $level:ident) => {
+        $crate::registry_macros::Check::StringStartsWithAny {
             key: $key,
-            value: $value,
+            values: vec![$($value),+],
             penalty: Level::$level,
         }
     };
 }
 
-#[macro_export]
-macro_rules! contains {
-    ($key:literal, $value:literal => $level:ident) => {
-        $crate::registry_macros::Check::StringContains {
-            key: $key,
-            value: $value,
-            penalty: Level::$level,
-        }
-    };
-}
+// #[macro_export]
+// macro_rules! contains {
+//     ($key:literal, $value:literal => $level:ident) => {
+//         $crate::registry_macros::Check::StringContains {
+//             key: $key,
+//             value: $value,
+//             penalty: Level::$level,
+//         }
+//     };
+// }
 
 #[macro_export]
-macro_rules! eq_any {
+macro_rules! eq {
     ($key:literal, $($value:literal)|+ => $level:ident) => {
         $crate::registry_macros::Check::StringEqualsAny {
             key: $key,
@@ -94,7 +84,7 @@ macro_rules! eq_any {
 }
 
 #[macro_export]
-macro_rules! contains_any {
+macro_rules! contains {
     ($key:literal, $($value:literal)|+ => $level:ident) => {
         $crate::registry_macros::Check::StringContainsAny {
             key: $key,
@@ -153,46 +143,45 @@ macro_rules! rule {
     };
 }
 
-pub fn execute_checks(
-    flags: &mut Flags,
-    key: &windows_registry::Key,
-    checks: &[Check],
-)  {
+pub fn execute_checks(flags: &mut Flags, key: &windows_registry::Key, checks: &[Check]) {
     for check in checks {
         match check {
-            Check::StringEquals {
+            // Check::StringEquals {
+            //     key: k,
+            //     value,
+            //     penalty,
+            // } => {
+            //     if let Ok(v) = key.get_string(k)
+            //         && v.eq_ignore_ascii_case(value)
+            //     {
+            //         flags.penalty(*penalty);
+            //     }
+            // }
+            Check::StringStartsWithAny {
                 key: k,
-                value,
+                values,
                 penalty,
             } => {
-                if let Ok(v) = key.get_string(k)
-                    && v.eq_ignore_ascii_case(value)
-                {
-                    flags.penalty(*penalty);
+                if let Ok(v) = key.get_string(k) {
+                    for value in values {
+                        if v.to_lowercase().starts_with(&value.to_lowercase()) {
+                            flags.penalty(*penalty);
+                            break;
+                        }
+                    }
                 }
             }
-            Check::StringStartsWith {
-                key: k,
-                value,
-                penalty,
-            } => {
-                if let Ok(v) = key.get_string(k)
-                    && v.to_lowercase().starts_with(&value.to_lowercase())
-                {
-                    flags.penalty(*penalty);
-                }
-            }
-            Check::StringContains {
-                key: k,
-                value,
-                penalty,
-            } => {
-                if let Ok(v) = key.get_string(k)
-                    && v.to_lowercase().contains(&value.to_lowercase())
-                {
-                    flags.penalty(*penalty);
-                }
-            }
+            // Check::StringContains {
+            //     key: k,
+            //     value,
+            //     penalty,
+            // } => {
+            //     if let Ok(v) = key.get_string(k)
+            //         && v.to_lowercase().contains(&value.to_lowercase())
+            //     {
+            //         flags.penalty(*penalty);
+            //     }
+            // }
             Check::StringEqualsAny {
                 key: k,
                 values,
