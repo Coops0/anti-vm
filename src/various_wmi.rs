@@ -4,37 +4,38 @@ use wmi::{COMLibrary, WMIConnection};
 use crate::flags::Flags;
 
 pub fn score_various_wmi(flags: &mut Flags) -> anyhow::Result<()> {
-        let com_con = COMLibrary::new()?;
+    let com_con = COMLibrary::new()?;
     let wmi_con = WMIConnection::new(com_con)?;
 
+    for system in wmi_con
+        .raw_query::<Win32ComputerSystem>(
+            "SELECT PowerOnPasswordStatus, Manufacturer, Model FROM Win32_ComputerSystem",
+        )
+        .unwrap_or_default()
     {
-        for system in wmi_con.raw_query::<Win32ComputerSystem>("SELECT PowerOnPasswordStatus, Manufacturer, Model FROM Win32_ComputerSystem").unwrap_or_default() {
-            system.score(flags);
-        }
+        system.score(flags);
     }
 
-    {
-        for bios in wmi_con.raw_query::<Win32Bios>("SELECT Name, Caption, __RELPATH, __PATH, BIOSVersion, Description, Manufacturer, SMBIOSBIOSVersion, SoftwareElementID, Path, SerialNumber FROM Win32_BIOS").unwrap_or_default() {
+    for bios in wmi_con.raw_query::<Win32Bios>("SELECT Name, Caption, __RELPATH, __PATH, BIOSVersion, Description, Manufacturer, SMBIOSBIOSVersion, SoftwareElementID, Path, SerialNumber FROM Win32_BIOS").unwrap_or_default() {
             bios.score(flags);
         }
-    }
 
-    {
-        for device in wmi_con.raw_query::<CimUserDevice>("SELECT __DYNASTY, __PATH, DeviceID, PNPDeviceID, Path, __RELPATH, __NAMESPACE, Caption, Description, HardwareType FROM CIM_UserDevice").unwrap_or_default() {
+    for device in wmi_con.raw_query::<CimUserDevice>("SELECT __DYNASTY, __PATH, DeviceID, PNPDeviceID, Path, __RELPATH, __NAMESPACE, Caption, Description, HardwareType FROM CIM_UserDevice").unwrap_or_default() {
             device.score(flags);
         }
+
+    for card in wmi_con
+        .raw_query::<CimCard>("SELECT Product FROM CIM_Card")
+        .unwrap_or_default()
+    {
+        card.score(flags);
     }
 
+    for ch in wmi_con
+        .raw_query::<CimChassis>("SELECT ChassisTypes, Manufacturer FROM CIM_Chassis")
+        .unwrap_or_default()
     {
-        for card in wmi_con.raw_query::<CimCard>("SELECT Product FROM CIM_Card").unwrap_or_default() {
-            card.score(flags);
-        }
-    }
-
-    {
-        for ch in wmi_con.raw_query::<CimChassis>("SELECT ChassisTypes, Manufacturer FROM CIM_Chassis").unwrap_or_default() {
-            ch.score(flags);
-        }
+        ch.score(flags);
     }
 
     Ok(())
@@ -191,8 +192,6 @@ impl Score for CimChassis {
         }
     }
 }
-
-
 
 #[inline]
 fn is_bad(s: &str) -> bool {

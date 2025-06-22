@@ -37,7 +37,7 @@ macro_rules! inspect {
 
         $crate::debug_println!("{}: {:?}{t}{location}", $name, value);
         value
-    }}
+    }};
 }
 
 #[cfg(not(debug_assertions))]
@@ -45,13 +45,12 @@ macro_rules! inspect {
 macro_rules! inspect {
     ($name:literal, $value:expr) => {
         $value
-    }
+    };
 }
-
 
 pub fn get_devices_iter(
     selector: &HSTRING,
-) -> anyhow::Result<impl Iterator<Item = DeviceInformation> + 'static + use<>> {
+) -> anyhow::Result<impl Iterator<Item = DeviceInformation>> {
     let devices_collection =
         DeviceInformation::FindAllAsyncWithKindAqsFilterAndAdditionalProperties(
             selector,

@@ -36,7 +36,7 @@ pub fn score_graphics_cards(flags: &mut Flags) -> anyhow::Result<()> {
     // AdapterDACType exists and isn't n/a
 
     // Description, Caption, DitherType, VideoProcessor, DeviceID, Name, InstalledDisplayDrivers, InfSection, StatusInfo, AdapterDACType
-    let graphics_cards = wmi_con.raw_query::<GraphicsCard>("SELECT Description,Caption,VideoProcessor,DeviceID,Name,InstalledDisplayDrivers,InfSection,AdapterDACType FROM Win32_VideoController")?;
+    let graphics_cards = wmi_con.raw_query::<GraphicsCard>("SELECT Description, Caption, VideoProcessor, DeviceID, Name, InstalledDisplayDrivers, InfSection, AdapterDACType FROM Win32_VideoController")?;
     if graphics_cards.is_empty() {
         flags.large_penalty();
         return Ok(());
@@ -49,36 +49,14 @@ pub fn score_graphics_cards(flags: &mut Flags) -> anyhow::Result<()> {
     Ok(())
 }
 
+#[rustfmt::skip]
 fn score_graphics_card(gc: &GraphicsCard, flags: &mut Flags) {
-    if gc.description.contains("VMware") {
-        flags.large_penalty();
-    }
-
-    if gc.caption.contains("VMware") {
-        flags.large_penalty();
-    }
-
-    if gc.video_processor.contains("VMware") {
-        flags.large_penalty();
-    }
-
-    if gc.device_id.contains("VMware") {
-        flags.large_penalty();
-    }
-
-    if gc.name.contains("VMware") {
-        flags.large_penalty();
-    }
-
-    if gc.installed_display_drivers.contains("vm3dum") {
-        flags.large_penalty();
-    }
-
-    if gc.inf_section.contains("VM3D") {
-        flags.large_penalty();
-    }
-
-    if gc.adapter_dac_type.is_empty() || gc.adapter_dac_type == "n/a" {
-        flags.large_penalty();
-    }
+    if gc.description.contains("VMware") { flags.large_penalty(); }
+    if gc.caption.contains("VMware") { flags.large_penalty(); }
+    if gc.video_processor.contains("VMware") { flags.large_penalty(); }
+    if gc.device_id.contains("VMware") { flags.large_penalty(); }
+    if gc.name.contains("VMware") { flags.large_penalty(); }
+    if gc.installed_display_drivers.contains("vm3dum") { flags.large_penalty(); }
+    if gc.inf_section.contains("VM3D") { flags.large_penalty(); }
+    if gc.adapter_dac_type.is_empty() || gc.adapter_dac_type == "n/a" { flags.large_penalty(); }
 }
