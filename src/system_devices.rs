@@ -1,11 +1,15 @@
 use windows::Devices::Enumeration::DeviceInformation;
 use windows_registry::LOCAL_MACHINE;
 
-use crate::flags::Flags;
+use crate::{flags::Flags, inspect};
 
 // TODO parrallelize this
 pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
-    let devices = DeviceInformation::FindAllAsync()?.get()?;
+    let devices = inspect!(
+        "inner get system devices",
+        DeviceInformation::FindAllAsync()?.get()
+    )?;
+
     for device in devices {
         let Ok(name) = device.Name() else { continue };
         let lc = name.to_string_lossy().to_lowercase();

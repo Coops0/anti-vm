@@ -1,15 +1,20 @@
 use windows::Devices::{Bluetooth::BluetoothAdapter, Enumeration::DeviceInformation};
 
-use crate::util::get_devices_iter;
+use crate::{flags::Flags, util::get_devices_iter};
 
-pub fn check_if_bluetooth_adapter() -> anyhow::Result<bool> {
+pub fn score_bluetooth_adapters(flags: &mut Flags) -> anyhow::Result<()> {
     let selector = BluetoothAdapter::GetDeviceSelector()?;
 
     let bluetooth_adapter_count = get_devices_iter(&selector)?
         .filter(|device| is_valid_bluetooth_adapter(device).unwrap_or_default())
         .count();
 
-    Ok(bluetooth_adapter_count > 0)
+    match bluetooth_adapter_count {
+        0 => flags.medium_penalty(),
+        _ => flags.large_bonus(),
+    }
+
+    Ok(())
 }
 
 fn is_valid_bluetooth_adapter(device: &DeviceInformation) -> anyhow::Result<bool> {

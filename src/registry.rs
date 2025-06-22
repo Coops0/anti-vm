@@ -48,7 +48,7 @@ pub fn score_registry(flags: &mut Flags)  {
         }),
         rule!("SYSTEM\\ControlSet001\\Control\\DeviceClasses" => {
             recurse!(
-                key_contains!("Ven_VMware_&Prod_VMware_Virtual_S" => Large),
+                key_contains!("Ven_VMware_&Prod_VMware_Virtual_S" | "CDRom" => Large),
                 recurse!(
                     contains!("DeviceInstance", "Ven_VMware_&Prod_VMware_Virtual_S" => Large),
                 )
@@ -111,7 +111,7 @@ pub fn score_registry(flags: &mut Flags)  {
         rule!("SYSTEM\\DriverDatabase\\DriverPackages" => {
             recurse!(
                 recurse_into!("Strings" => {
-                    contains!("loc.vmwarebusdevicedesc", "" => Large),
+                    contains!("loc.vmwarebusdevicedesc" => Large),
                 }),
                 recurse_into!("Descriptors\\PCI" => {
                     recurse!(

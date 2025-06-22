@@ -23,11 +23,13 @@ macro_rules! inspect {
         let value = $value;
         let t = before.elapsed().as_millis();
 
-        let t = if t != 0 {
+        let t_str = if t != 0 {
             format!(" (took {t}ms)")
         } else {
             String::new()
         };
+
+        let prefix = if t > 40 { "!!! SLOW CHECK > " } else { "" };
 
         let location = if cfg!(debug_assertions) {
             format!(" ({}:{}:{})", file!(), line!(), column!())
@@ -35,7 +37,7 @@ macro_rules! inspect {
             String::new()
         };
 
-        $crate::debug_println!("{}: {:?}{t}{location}", $name, value);
+        $crate::debug_println!("{prefix}{}: {:?}{t_str}{location}", $name, value);
         value
     }};
 }

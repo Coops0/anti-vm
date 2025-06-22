@@ -1,7 +1,12 @@
 #![feature(stmt_expr_attributes)]
 
 use crate::{
-    activated::check_is_activated, battery::get_battery, bluetooth_adapters::check_if_bluetooth_adapter, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
+    activated::check_is_activated, battery::get_battery,
+    bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags,
+    graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os,
+    registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices,
+    usb_devices::score_usb_devices, various_wmi::score_various_wmi,
+    wifi_adapters::score_wifi_adapters,
 };
 
 mod activated;
@@ -17,8 +22,8 @@ mod registry_macros;
 mod sysinfo;
 mod system_devices;
 mod usb_devices;
-mod various_wmi;
 mod util;
+mod various_wmi;
 mod wifi_adapters;
 
 // TODO check across many (real) systems
@@ -32,18 +37,25 @@ fn main() {
     let start = std::time::Instant::now();
     let mut flags = Flags::new();
 
+    // VERY SLOW CHECK: Takes 150-400ms
     let system_devices_t = std::thread::spawn(|| {
-        let mut flags = Flags::new();
-        if inspect!("system devices", score_system_devices(&mut flags)).is_err() {
-            flags.large_penalty();
+        let mut f = Flags::new();
+        if inspect!("system devices", score_system_devices(&mut f)).is_err() {
+            f.large_penalty();
         }
 
-        flags
+        f
     });
 
-    if inspect!("os", score_os(&mut flags)).is_err() {
-        flags.large_penalty();
-    }
+    // SLOW CHECK: Takes 60-150ms
+    let os_t = std::thread::spawn(|| {
+        let mut f = Flags::new();
+        if inspect!("os", score_os(&mut f)).is_err() {
+            f.large_penalty();
+        }
+
+        f
+    });
 
     if inspect!("wifi adapters", score_wifi_adapters(&mut flags)).is_err() {
         flags.medium_penalty();
@@ -67,33 +79,45 @@ fn main() {
 
     score_registry(&mut flags);
 
+    // SLOW CHECK: Takes ~66ms
     if inspect!("local account", get_is_local_account()).unwrap_or_default() {
         flags.medium_penalty();
     } else {
+        // If they are actually signed in with a Microsoft account 
         flags.large_bonus();
     }
 
-    if !inspect!("activated", check_is_activated()).unwrap_or_default() {
+    if inspect!("activated", check_is_activated()).unwrap_or_default() {
+        flags.small_bonus();
+    } else {
         flags.medium_penalty();
     }
 
-    // this can be spoofed, and laptops can have discrete graphics cards
+    // this can be spoofed, and either way laptops can have discrete graphics cards
     if inspect!("graphics card", score_graphics_cards(&mut flags)).is_err() {
         flags.medium_penalty();
     }
 
-    if !inspect!("bluetooth", check_if_bluetooth_adapter()).unwrap_or_default() {
+    if inspect!("bluetooth", score_bluetooth_adapters(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
+    // SLOW CHECK: Takes ~53ms
     if inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
         flags.large_penalty();
     }
 
     match system_devices_t.join() {
-        Ok(mut system_devices_flags) => flags.merge(&mut system_devices_flags),
+        Ok(mut f) => flags.merge(&mut f),
         Err(why) => {
             debug_println!("failed to join system devices thread: {why:?}");
+        }
+    }
+
+    match os_t.join() {
+        Ok(mut f) => flags.merge(&mut f),
+        Err(why) => {
+            debug_println!("failed to join os thread: {why:?}");
         }
     }
 
