@@ -1,13 +1,9 @@
 use std::cell::LazyCell;
 use std::ptr::null_mut;
-use std::sync::{LazyLock, OnceLock};
 
 use anyhow::bail;
-use windows::Win32::Foundation::{HLOCAL, LocalFree};
 use windows::Win32::Security::Authentication::Identity::{
-    SL_DATA_SZ, SL_GEN_STATE_INVALID_LICENSE, SL_GEN_STATE_IS_GENUINE, SL_ID_LICENSE,
-    SL_INFO_KEY_AUTHOR, SL_INFO_KEY_DESCRIPTION, SL_INFO_KEY_NAME, SLClose,
-    SLGetProductSkuInformation, SLGetSLIDList, SLIsGenuineLocal,
+    SL_GEN_STATE_INVALID_LICENSE, SL_GEN_STATE_IS_GENUINE, SLClose, SLGetSLIDList, SLIsGenuineLocal,
 };
 use windows::Win32::Security::Authentication::Identity::{
     SL_ID_APPLICATION, SL_ID_PRODUCT_SKU, SLOpen,
@@ -15,16 +11,12 @@ use windows::Win32::Security::Authentication::Identity::{
 use windows_core::GUID;
 
 #[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Default)]
 pub enum ActivationType {
+    #[default]
     Unlicensed,
     LikelyGenuine,
     Pirated,
-}
-
-impl Default for ActivationType {
-    fn default() -> Self {
-        ActivationType::Unlicensed
-    }
 }
 
 // 55c92734-d682-4d71-983e-d6ec3f16059f
@@ -66,7 +58,7 @@ pub fn get_windows_license_type() -> anyhow::Result<ActivationType> {
 
     for i in 0..pn_return_ids {
         let guid = unsafe { *pp_return_ids.add(i as usize) };
-        if KEYS.iter().any(|key| *key == guid) {
+        if KEYS.with(|keys| keys.contains(&guid)) {
             return Ok(ActivationType::Pirated);
         }
     }
@@ -211,15 +203,17 @@ const RAW_KEYS: &[&str] = &[
     "ca7df2e3-5ea0-47b8-9ac1-b1be4d8edd69_37D7F-N49CB-WQR8W-TBJ73-FM%f%8RX_203_CloudEdition",
 ];
 
-const KEYS: LazyCell<Vec<GUID>> = LazyCell::new(|| {
-    RAW_KEYS
-        .iter()
-        .map(|raw_key| {
-            raw_key
-                .split("_")
-                .next()
-                .unwrap_or_else(|| panic!("bad key {raw_key}"))
-        })
-        .map(|guid_str| GUID::try_from(guid_str).unwrap_or_else(|_| panic!("bad guid {guid_str}")))
-        .collect()
-});
+thread_local! {
+    static KEYS: LazyCell<Vec<GUID>> = LazyCell::new(|| {
+        RAW_KEYS
+            .iter()
+            .map(|raw_key| {
+                raw_key
+                    .split('_')
+                    .next()
+                    .unwrap_or_else(|| panic!("bad key {raw_key}"))
+            })
+            .map(|guid_str| GUID::try_from(guid_str).unwrap_or_else(|_| panic!("bad guid {guid_str}")))
+            .collect()
+    });
+}

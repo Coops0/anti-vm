@@ -4,7 +4,7 @@ use windows::Win32::System::Com::CoInitialize;
 use wmi::COMLibrary;
 
 use crate::{
-    activated::{check_is_activated, get_windows_license_type, ActivationType}, auto_logon::is_auto_logon_enabled, battery::get_battery, bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, installed_apps::score_installed_apps, microsoft_account::has_microsoft_account, os::score_os, printers::score_printers, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
+    activated::{get_windows_license_type, ActivationType}, auto_logon::is_auto_logon_enabled, battery::get_battery, bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, installed_apps::score_installed_apps, microsoft_account::has_microsoft_account, os::score_os, printers::score_printers, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
 };
 
 mod activated;
@@ -89,7 +89,7 @@ fn execute() -> Flags {
             ActivationType::LikelyGenuine => f.medium_bonus(),
             ActivationType::Pirated => f.small_penalty(),
             ActivationType::Unlicensed => f.medium_penalty(),
-        };
+        }
         f
     });
 
