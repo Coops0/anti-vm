@@ -1,6 +1,6 @@
 use windows::Devices::{Bluetooth::BluetoothAdapter, Enumeration::DeviceInformation};
 
-use crate::{flags::Flags, util::get_devices_iter};
+use crate::{debug_println, flags::Flags, util::get_devices_iter};
 
 pub fn score_bluetooth_adapters(flags: &mut Flags) -> anyhow::Result<()> {
     let selector = BluetoothAdapter::GetDeviceSelector()?;
@@ -13,6 +13,8 @@ pub fn score_bluetooth_adapters(flags: &mut Flags) -> anyhow::Result<()> {
         0 => flags.medium_penalty(),
         _ => flags.large_bonus(),
     }
+
+    debug_println!("found {bluetooth_adapter_count} valid Bluetooth adapters");
 
     Ok(())
 }

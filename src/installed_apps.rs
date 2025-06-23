@@ -9,12 +9,11 @@ use anyhow::{Context, bail};
 use windows::Win32::{
     Foundation::MAX_PATH,
     Globalization::CP_ACP,
-    Storage::FileSystem::{WIN32_FIND_DATAA, WIN32_FIND_DATAW},
     System::Com::IPersistFile,
-    UI::Shell::{IShellLinkA, IShellLinkW, SLGP_SHORTPATH},
+    UI::Shell::{IShellLinkW, SLGP_RELATIVEPRIORITY},
 };
 use windows::Win32::{
-    Globalization::{MB_COMPOSITE, MULTI_BYTE_TO_WIDE_CHAR_FLAGS, MultiByteToWideChar},
+    Globalization::{MULTI_BYTE_TO_WIDE_CHAR_FLAGS, MultiByteToWideChar},
     System::Com::STGM_READ,
 };
 use windows::core::Interface;
@@ -24,10 +23,9 @@ use windows::{
 };
 use windows_core::PCWSTR;
 
-use crate::flags::Flags;
+use crate::{debug_println, flags::Flags, inspect};
 
 pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
-    // C:\Users\cooper\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Steam
     let programs_dir = dirs::data_dir()
         .context("ndd")?
         .join("Microsoft")
@@ -41,38 +39,66 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
         return Ok(());
     }
 
+    let mut found_steam_exe = false;
+    let mut steam_games = 0u32;
+    let mut valid_programs = 0u32;
+
     for p in installed {
-        // lnk, url,
+        // lnk or url
         let Some(ext) = p
             .extension()
             .and_then(OsStr::to_str)
-            .map(|ext| ext.to_lowercase())
+            .map(str::to_lowercase)
         else {
             continue;
         };
 
-        println!("app: {:?} {:?}", p.file_name(), p.display());
-        if ext == "lnk" {
-            // todo change to .unwrap_or_default()
-            if !validate_lnk(&p).unwrap() {
-                continue;
+        if ext == "url" {
+            if validate_url(&p).is_ok() {
+                steam_games += 1;
             }
-        } else if ext == "url" {
-            if !validate_url(&p).unwrap_or_default() {
-                continue;
-            }
-        } else {
             continue;
+        } else if ext != "lnk" {
+            continue;
+        }
+
+        if let Ok(exe_path) = validate_lnk(&p) {
+            let executable = exe_path
+                .file_name()
+                .and_then(OsStr::to_str)
+                .unwrap_or_default()
+                .to_lowercase();
+            if executable == "steam.exe" {
+                found_steam_exe = true;
+            }
+
+            valid_programs += 1;
         }
     }
 
-    todo!();
+    debug_println!("found {valid_programs} valid programs, steam = {found_steam_exe}, {steam_games} steam games");
+    if found_steam_exe {
+        match steam_games {
+            0 => flags.large_penalty(),
+            1..4 => flags.small_penalty(),
+            4..=12 => {},
+            _ => flags.medium_bonus(),
+        }
+    }
+
+    match valid_programs {
+        0 => flags.large_penalty(),
+        1 => flags.small_penalty(),
+        2..=6 => {},
+        _ => flags.medium_bonus(),
+    }
+
     Ok(())
 }
 
 fn recurse_dir(dir: &Path, ret: &mut Vec<PathBuf>) -> anyhow::Result<()> {
-    for entry in dir.read_dir().context("Failed to read directory")? {
-        let entry = entry.context("Failed to read directory entry")?;
+    for entry in dir.read_dir()? {
+        let entry = entry?;
         let path = entry.path();
 
         if path.is_dir() {
@@ -84,27 +110,30 @@ fn recurse_dir(dir: &Path, ret: &mut Vec<PathBuf>) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn validate_url(path: &Path) -> Option<bool> {
-    let s = fs::read_to_string(path).ok()?;
+// Returns steam game "url"
+fn validate_url(path: &Path) -> anyhow::Result<String> {
+    let s = fs::read_to_string(path)?;
 
     let mut lines = s.lines();
+    let url = lines
+        .clone()
+        .find_map(|line| line.strip_prefix("URL="))
+        .map(str::trim)
+        .context("nurl")?;
 
-    let ret = match (
-        lines.clone().find_map(|line| line.strip_prefix("URL=")),
-        lines.find_map(|line| line.strip_prefix("IconFile=")),
-    ) {
-        (None, None) => false,
-        (Some(""), None) => false,
-        (None, Some("")) => false,
+    let icon = lines
+        .find_map(|line| line.strip_prefix("IconFile="))
+        .map(str::trim)
+        .context("nicn")?;
 
-        (Some(url), None) if url.contains("//") => true,
-        (Some(url), None) => fs::exists(Path::new(url)).is_ok_and(|x| x),
+    if url.starts_with("steam://") && 
+    // Game still installed
+    fs::exists(icon).unwrap_or_default()
+    {
+        return Ok(url.to_owned());
+    }
 
-        (None, Some(icon)) => fs::exists(Path::new(icon)).is_ok_and(|x| x),
-        _ => true,
-    };
-
-    Some(ret)
+    Err(anyhow::anyhow!("bad url"))
 }
 
 const CLSID_SHELL_LINK: GUID = GUID::from_values(
@@ -114,12 +143,12 @@ const CLSID_SHELL_LINK: GUID = GUID::from_values(
     [0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46],
 );
 
-fn validate_lnk(path: &Path) -> anyhow::Result<bool> {
-    let ret = unsafe { CoInitialize(None) };
+fn validate_lnk(path: &Path) -> anyhow::Result<PathBuf> {
+    // let ret = unsafe { CoInitialize(None) };
 
-    if ret.is_err() {
-        bail!("Failed to initialize COM: {ret:?}");
-    }
+    // if ret.is_err() {
+    //     bail!("Failed to initialize COM: {ret:?}");
+    // }
 
     let psl: IShellLinkW =
         unsafe { CoCreateInstance(&CLSID_SHELL_LINK, None, CLSCTX_INPROC_SERVER)? };
@@ -143,35 +172,27 @@ fn validate_lnk(path: &Path) -> anyhow::Result<bool> {
 
     let wsz_pcwstr = PCWSTR::from_raw(wsz.as_ptr());
     unsafe {
-        ppf.Load(wsz_pcwstr.clone(), STGM_READ)?;
+        ppf.Load(wsz_pcwstr, STGM_READ)?;
     }
 
     let mut sz_got_path = [0u16; MAX_PATH as usize];
     // let mut wfd: WIN32_FIND_DATAW = unsafe { core::mem::zeroed() };
 
     unsafe {
-        psl.GetPath(&mut sz_got_path, null_mut(), SLGP_SHORTPATH.0 as u32)?;
+        psl.GetPath(&mut sz_got_path, null_mut(), SLGP_RELATIVEPRIORITY.0 as u32)?;
     }
 
     let sz_got_path_str = unsafe { PCWSTR::from_raw(sz_got_path.as_ptr()).to_string()? };
 
     let exe_path = PathBuf::from(sz_got_path_str);
     if !exe_path.exists() || !exe_path.is_file() {
-        return Ok(false);
+        bail!("bad file");
     }
 
-    if exe_path.ancestors().any(|a| {
-        let mut a = a.to_str().unwrap_or_default().to_lowercase();
-        a = a.replace('\\', "");
-        a = a.replace("/", "");
-        a = a.trim().to_string();
-
-        a == "system32"
-    }) {
-        println!("skipping system32 app: {}", exe_path.display());
-        return Ok(false);
+    let normalized = exe_path.to_str().unwrap_or_default().to_lowercase();
+    if normalized.contains("\\system32\\") {
+        bail!("sys32");
     }
 
-    println!("valid app: {}", exe_path.display());
-    Ok(true)
+    Ok(exe_path)
 }

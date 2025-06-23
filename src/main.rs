@@ -1,7 +1,14 @@
 #![feature(stmt_expr_attributes)]
 
+use windows::Win32::System::Com::CoInitialize;
+
 use crate::{
-    activated::check_is_activated, auto_logon::is_auto_logon_enabled, battery::get_battery, bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, installed_apps::score_installed_apps, microsoft_account::has_microsoft_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
+    activated::check_is_activated, auto_logon::is_auto_logon_enabled, battery::get_battery,
+    bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags,
+    graphics_card::score_graphics_cards, installed_apps::score_installed_apps,
+    microsoft_account::has_microsoft_account, os::score_os, registry::score_registry,
+    sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices,
+    various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters,
 };
 
 mod activated;
@@ -11,6 +18,7 @@ mod bluetooth_adapters;
 mod displays;
 mod flags;
 mod graphics_card;
+mod installed_apps;
 mod microsoft_account;
 mod os;
 mod registry;
@@ -18,7 +26,6 @@ mod registry_macros;
 mod sysinfo;
 mod system_devices;
 mod usb_devices;
-mod installed_apps;
 mod util;
 mod various_wmi;
 mod wifi_adapters;
@@ -34,7 +41,11 @@ mod wifi_adapters;
 fn main() {
     let start = std::time::Instant::now();
     let mut flags = Flags::new();
-    score_installed_apps(&mut flags).unwrap();
+
+    let ret = unsafe { CoInitialize(None) };
+    if ret.is_err() {
+        debug_println!("WARNING: Failed to initialize COM: {ret:?}");
+    }
 
     // VERY SLOW CHECK: Takes 150-400ms
     let system_devices_t = std::thread::spawn(|| {
@@ -46,14 +57,15 @@ fn main() {
         f
     });
 
-    // SLOW CHECK: Takes 60-150ms
+    // SLOW CHECK: Takes 60-150ms 
+    // BUT: CANNOT be threaded, because it uses COM
     let os_t = std::thread::spawn(|| {
-        let mut f = Flags::new();
-        if inspect!("os", score_os(&mut f)).is_err() {
-            f.large_penalty();
-        }
-
-        f
+    let mut f = Flags::new();
+    if inspect!("os", score_os(&mut f)).is_err() {
+        f.large_penalty();
+    }
+    
+    f
     });
 
     if inspect!("wifi adapters", score_wifi_adapters(&mut flags)).is_err() {
@@ -107,6 +119,10 @@ fn main() {
 
     if inspect!("auto logon", is_auto_logon_enabled()).unwrap_or_default() {
         flags.medium_penalty();
+    }
+
+    if inspect!("installed apps", score_installed_apps(&mut flags)).is_err() {
+        flags.large_penalty();
     }
 
     match system_devices_t.join() {

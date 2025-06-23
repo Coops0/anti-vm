@@ -134,7 +134,7 @@ const PROS: &[OS_PRODUCT_TYPE] = &[
 ];
 
 fn get_wmi_os_stats_and_score(flags: &mut Flags) -> anyhow::Result<DateTime<FixedOffset>> {
-    let com_con = COMLibrary::new()?;
+    let com_con = unsafe { COMLibrary::assume_initialized() };
     let wmi_con = WMIConnection::new(com_con)?;
 
     let results = wmi_con.raw_query::<Win32OperatingSystem>(
