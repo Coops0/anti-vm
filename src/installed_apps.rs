@@ -85,9 +85,9 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
     }
 
     match valid_programs {
-        0 => flags.large_penalty(),
-        1 => flags.small_penalty(),
-        2..=12 => {}
+        0..=2 => flags.large_penalty(),
+        3..=5 => flags.medium_penalty(),
+        6..=11 => {}
         _ => flags.medium_bonus(),
     }
 

@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 
 use std::mem;
+#[cfg(debug_assertions)]
+use std::panic;
 
-use paste2::paste;
+use pastey::paste;
 
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -36,7 +38,7 @@ pub struct Flags {
 }
 
 #[cfg(debug_assertions)]
-fn print_caller(t: &str, level: Level, location: &std::panic::Location<'_>) {
+fn print_caller(t: &str, level: Level, location: &panic::Location<'_>) {
     use crate::debug_println;
 
     debug_println!(
@@ -59,7 +61,7 @@ impl Flags {
     #[track_caller]
     #[inline]
     pub fn penalty(&mut self, level: Level) {
-        print_caller("PENALTY GENERIC", level, std::panic::Location::caller());
+        print_caller("PENALTY GENERIC", level, panic::Location::caller());
         self.inner_penalty(level);
     }
 
