@@ -5,8 +5,8 @@ use windows::Devices::Display::{
 use windows::Devices::Enumeration::DeviceInformation;
 
 use crate::flags::Flags;
-use crate::{debug_println, inspect};
 use crate::util::get_devices_iter;
+use crate::{debug_println, inspect};
 
 // TODO score adapters
 // DisplayAdapterId
@@ -128,7 +128,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     ) {
         Ok(0.0) | Err(_) => flags.medium_penalty(),
         Ok(l) => {
-            // If these match up that's good 
+            // If these match up that's good
             if let Ok(ml) = &max_luminance {
                 if (l - *ml).abs() < 0.01 {
                     flags.small_bonus();

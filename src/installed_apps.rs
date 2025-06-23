@@ -45,11 +45,7 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
 
     for p in installed {
         // lnk or url
-        let Some(ext) = p
-            .extension()
-            .and_then(OsStr::to_str)
-            .map(str::to_lowercase)
-        else {
+        let Some(ext) = p.extension().and_then(OsStr::to_str).map(str::to_lowercase) else {
             continue;
         };
 
@@ -76,12 +72,14 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
         }
     }
 
-    debug_println!("found {valid_programs} valid programs, steam = {found_steam_exe}, {steam_games} steam games");
+    debug_println!(
+        "found {valid_programs} valid programs, steam = {found_steam_exe}, {steam_games} steam games"
+    );
     if found_steam_exe {
         match steam_games {
             0 => flags.large_penalty(),
             1..4 => flags.small_penalty(),
-            4..=12 => {},
+            4..=12 => {}
             _ => flags.medium_bonus(),
         }
     }
@@ -89,7 +87,7 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
     match valid_programs {
         0 => flags.large_penalty(),
         1 => flags.small_penalty(),
-        2..=6 => {},
+        2..=6 => {}
         _ => flags.medium_bonus(),
     }
 

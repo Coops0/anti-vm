@@ -53,19 +53,26 @@ fn main() {
         if inspect!("system devices", score_system_devices(&mut f)).is_err() {
             f.large_penalty();
         }
-
         f
     });
 
-    // SLOW CHECK: Takes 60-150ms 
+    // SLOW CHECK: Takes 60-150ms
     // BUT: CANNOT be threaded, because it uses COM
     let os_t = std::thread::spawn(|| {
-    let mut f = Flags::new();
-    if inspect!("os", score_os(&mut f)).is_err() {
-        f.large_penalty();
-    }
-    
-    f
+        let mut f = Flags::new();
+        if inspect!("os", score_os(&mut f)).is_err() {
+            f.large_penalty();
+        }
+        f
+    });
+
+    // SLOW CHECK: Takes ~40-400ms
+    let installed_apps_t = std::thread::spawn(|| {
+        let mut f = Flags::new();
+        if inspect!("installed apps", score_installed_apps(&mut f)).is_err() {
+            f.large_penalty();
+        }
+        f
     });
 
     if inspect!("wifi adapters", score_wifi_adapters(&mut flags)).is_err() {
@@ -121,10 +128,6 @@ fn main() {
         flags.medium_penalty();
     }
 
-    if inspect!("installed apps", score_installed_apps(&mut flags)).is_err() {
-        flags.large_penalty();
-    }
-
     match system_devices_t.join() {
         Ok(mut f) => flags.merge(&mut f),
         Err(why) => {
@@ -136,6 +139,13 @@ fn main() {
         Ok(mut f) => flags.merge(&mut f),
         Err(why) => {
             debug_println!("failed to join os thread: {why:?}");
+        }
+    }
+
+    match installed_apps_t.join() {
+        Ok(mut f) => flags.merge(&mut f),
+        Err(why) => {
+            debug_println!("failed to join installed apps thread: {why:?}");
         }
     }
 
