@@ -1,12 +1,9 @@
-use std::cell::LazyCell;
-use std::ptr::null_mut;
+use std::{cell::LazyCell, ptr::null_mut};
 
 use anyhow::bail;
 use windows::Win32::Security::Authentication::Identity::{
-    SL_GEN_STATE_INVALID_LICENSE, SL_GEN_STATE_IS_GENUINE, SLClose, SLGetSLIDList, SLIsGenuineLocal,
-};
-use windows::Win32::Security::Authentication::Identity::{
-    SL_ID_APPLICATION, SL_ID_PRODUCT_SKU, SLOpen,
+    SL_GEN_STATE_INVALID_LICENSE, SL_GEN_STATE_IS_GENUINE, SL_ID_APPLICATION, SL_ID_PRODUCT_SKU,
+    SLClose, SLGetSLIDList, SLIsGenuineLocal, SLOpen,
 };
 use windows_core::GUID;
 

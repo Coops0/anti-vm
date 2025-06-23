@@ -10,7 +10,6 @@ use windows::Win32::{
         },
         Time::SystemTimeToFileTime,
     },
-    // System::SystemInformation::
 };
 use windows_registry::{Key, USERS};
 use wmi::{COMLibrary, WMIConnection};

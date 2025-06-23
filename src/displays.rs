@@ -1,12 +1,12 @@
-use windows::Devices::Display::{
-    DisplayMonitor, DisplayMonitorConnectionKind, DisplayMonitorPhysicalConnectorKind,
-    DisplayMonitorUsageKind,
+use windows::Devices::{
+    Display::{
+        DisplayMonitor, DisplayMonitorConnectionKind, DisplayMonitorPhysicalConnectorKind,
+        DisplayMonitorUsageKind,
+    },
+    Enumeration::DeviceInformation,
 };
-use windows::Devices::Enumeration::DeviceInformation;
 
-use crate::flags::Flags;
-use crate::util::get_devices_iter;
-use crate::{debug_println, inspect};
+use crate::{debug_println, flags::Flags, inspect, util::get_devices_iter};
 
 // TODO score adapters
 // DisplayAdapterId

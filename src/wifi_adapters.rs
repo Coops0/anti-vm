@@ -1,10 +1,10 @@
 use std::ptr::null_mut;
 
 use anyhow::bail;
-use windows::Win32::Foundation::{ERROR_SUCCESS, HANDLE};
 
-use windows::Win32::NetworkManagement::WiFi::{
-    WLAN_INTERFACE_INFO_LIST, WlanEnumInterfaces, WlanOpenHandle,
+use windows::Win32::{
+    Foundation::{ERROR_SUCCESS, HANDLE},
+    NetworkManagement::WiFi::{WLAN_INTERFACE_INFO_LIST, WlanEnumInterfaces, WlanOpenHandle},
 };
 use windows_core::{Free, GUID};
 

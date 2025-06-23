@@ -6,20 +6,14 @@ use std::{
 };
 
 use anyhow::{Context, bail};
-use windows::Win32::{
-    Foundation::MAX_PATH,
-    Globalization::CP_ACP,
-    System::Com::IPersistFile,
-    UI::Shell::{IShellLinkW, SLGP_RELATIVEPRIORITY},
-};
-use windows::Win32::{
-    Globalization::{MULTI_BYTE_TO_WIDE_CHAR_FLAGS, MultiByteToWideChar},
-    System::Com::STGM_READ,
-};
-use windows::core::Interface;
 use windows::{
-    Win32::System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance},
-    core::GUID,
+    Win32::{
+        Foundation::MAX_PATH,
+        Globalization::{CP_ACP, MULTI_BYTE_TO_WIDE_CHAR_FLAGS, MultiByteToWideChar},
+        System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance, IPersistFile, STGM_READ},
+        UI::Shell::{IShellLinkW, SLGP_RELATIVEPRIORITY},
+    },
+    core::{GUID, Interface},
 };
 use windows_core::PCWSTR;
 
