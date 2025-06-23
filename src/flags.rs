@@ -48,9 +48,9 @@ fn print_caller(t: &str, level: Level, location: &panic::Location<'_>) {
             crate::util::colors::BOLD
         )
     } else if t == "BONUS" {
-        format!("{}", crate::util::colors::BRIGHT_GREEN)
+        crate::util::colors::BRIGHT_GREEN.to_owned()
     } else {
-        format!("{}", crate::util::colors::DARK_GREEN)
+        crate::util::colors::DARK_GREEN.to_owned()
     };
 
     debug_println!(
