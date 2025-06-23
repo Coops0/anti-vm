@@ -4,12 +4,22 @@ use windows::Win32::System::Com::CoInitialize;
 use wmi::COMLibrary;
 
 use crate::{
-    activated::check_is_activated, auto_logon::is_auto_logon_enabled, battery::get_battery,
-    bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags,
-    graphics_card::score_graphics_cards, installed_apps::score_installed_apps,
-    microsoft_account::has_microsoft_account, os::score_os, registry::score_registry,
-    sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices,
-    various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters,
+    activated::{ActivationType, check_is_activated, get_windows_license_type},
+    auto_logon::is_auto_logon_enabled,
+    battery::get_battery,
+    bluetooth_adapters::score_bluetooth_adapters,
+    displays::score_displays,
+    flags::Flags,
+    graphics_card::score_graphics_cards,
+    installed_apps::score_installed_apps,
+    microsoft_account::has_microsoft_account,
+    os::score_os,
+    registry::score_registry,
+    sysinfo::score_sysinfo,
+    system_devices::score_system_devices,
+    usb_devices::score_usb_devices,
+    various_wmi::score_various_wmi,
+    wifi_adapters::score_wifi_adapters,
 };
 
 mod activated;
@@ -33,14 +43,12 @@ mod wifi_adapters;
 
 // TODO check across many (real) systems
 // TODO check across virtual box, hyperv, (and maybe even UTM?)
+// TODO check on laptop
 
-// TODO use obfstr
+// TODO use obfstr or use build step to do all strings
 
-// TODO strip binary with build step too
 // TODO get rid of unused windows crate features
-
 // TODO implement tests running many times and getting the same score
-
 fn execute() -> Flags {
     let mut flags = Flags::new();
     let mut enable_com_features = true;
@@ -88,6 +96,17 @@ fn execute() -> Flags {
         f
     });
 
+    // VERY SLOW CHECK: Takes ~300ms
+    let license_type_t = std::thread::spawn(|| {
+        let mut f = Flags::new();
+        match inspect!("license type", get_windows_license_type()).unwrap_or_default() {
+            ActivationType::LikelyGenuine => f.medium_bonus(),
+            ActivationType::Pirated => f.small_penalty(),
+            ActivationType::Unlicensed => f.medium_penalty(),
+        };
+        f
+    });
+
     if inspect!("wifi adapters", score_wifi_adapters(&mut flags)).is_err() {
         flags.medium_penalty();
     }
@@ -117,12 +136,6 @@ fn execute() -> Flags {
         } else {
             flags.small_penalty();
         }
-    }
-
-    if inspect!("activated", check_is_activated()).unwrap_or_default() {
-        flags.small_bonus();
-    } else {
-        flags.medium_penalty();
     }
 
     if enable_com_features {
@@ -168,6 +181,13 @@ fn execute() -> Flags {
         }
     }
 
+    match license_type_t.join() {
+        Ok(mut f) => flags.merge(&mut f),
+        Err(why) => {
+            debug_println!("failed to join license type thread: {why:?}");
+        }
+    }
+
     flags
 }
 
@@ -178,7 +198,7 @@ fn main() {
     debug_println!("penalties: {:?}", flags.penalties());
     debug_println!("bonuses: {:?}", flags.bonuses());
 
-    // TODO decide value to decide if finally detected
+    // TODO decide value to choose if finally detected
     println!("score: {}", flags.score());
 
     println!("TOTAL EXECUTION TIME: {}ms", start.elapsed().as_millis());
