@@ -7,7 +7,10 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.98"
-chrono = "0.4.41"
+chrono = { version = "0.4.41", default-features = false, features = [
+    "clock",
+    "std",
+] }
 dirs = "6.0.0"
 nusb = "0.1.14"
 pastey = "0.1.0"
@@ -44,7 +47,7 @@ windows = { version = "0.61.1", features = [
     "Win32_NetworkManagement_WiFi",
     "Win32_UI",
     "Win32_UI_Shell",
-    "Win32_Globalization"
+    "Win32_Globalization",
 ] }
 windows-collections = "0.2.0"
 windows-core = "0.61.2"
@@ -52,17 +55,18 @@ windows-registry = "0.5.2"
 wmi = "0.17.2"
 
 [profile.dev]
-incremental = true # Compile your binary in smaller steps.
+incremental = true
 rustflags = ["-Zthreads=8"] # Better compile performance.
 
 [profile.release]
-codegen-units = 1 # Allows LLVM to perform better optimization.
-lto = true # Enables link-time-optimizations.
-opt-level = "s" # Prioritizes small binary size. Use `3` if you prefer speed.
-panic = "abort" # Higher performance by disabling panic handlers.
-strip = true # Ensures debug symbols are removed.
-trim-paths = "all" # Removes potentially privileged information from your binaries.
-rustflags = ["-Cdebuginfo=0", "-Zthreads=8"] # Better compile performance.
+codegen-units = 1
+lto = true
+opt-level = "z"                                                        # z is like 1/2 the size of s
+panic = "abort"                                                        # Higher performance by disabling panic handlers.
+strip = true
+trim-paths = "all"
+rustflags = ["-Cdebuginfo=0", "-Zlocation-detail=none", "-Zthreads=8"]
+
 
 # <editor-fold desc="Lints">
 [lints.clippy]

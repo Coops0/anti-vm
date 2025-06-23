@@ -41,6 +41,7 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
 
     let mut found_steam_exe = false;
     let mut steam_games = 0u32;
+
     let mut valid_programs = 0u32;
 
     for p in installed {
@@ -50,31 +51,40 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
         };
 
         if ext == "url" {
-            if validate_url(&p).is_ok() {
+            if matches!(validate_url(&p), Ok(UrlShortcutType::Steam(_))) {
                 steam_games += 1;
             }
-            continue;
         } else if ext != "lnk" {
             continue;
         }
 
-        if let Ok(exe_path) = validate_lnk(&p) {
-            let executable = exe_path
-                .file_name()
-                .and_then(OsStr::to_str)
-                .unwrap_or_default()
-                .to_lowercase();
-            if executable == "steam.exe" {
-                found_steam_exe = true;
-            }
+        let Ok(shortcut) = validate_lnk(&p) else {
+            continue;
+        };
 
-            valid_programs += 1;
+        // TODO maybe make use of the other types eventually
+        let LnkShortcutType::ExistingExecutable(exe_path) = shortcut else {
+            continue;
+        };
+
+        let executable = exe_path
+            .file_name()
+            .and_then(OsStr::to_str)
+            .map(str::trim)
+            .map(str::to_lowercase)
+            .unwrap_or_default();
+
+        if executable == "steam.exe" {
+            found_steam_exe = true;
         }
+
+        valid_programs += 1;
     }
 
     debug_println!(
         "found {valid_programs} valid programs, steam = {found_steam_exe}, {steam_games} steam games"
     );
+
     if found_steam_exe {
         match steam_games {
             0 => flags.large_penalty(),
@@ -108,8 +118,14 @@ fn recurse_dir(dir: &Path, ret: &mut Vec<PathBuf>) -> anyhow::Result<()> {
     Ok(())
 }
 
-// Returns steam game "url"
-fn validate_url(path: &Path) -> anyhow::Result<String> {
+#[allow(dead_code)]
+enum UrlShortcutType {
+    Steam(String),
+    Web(String),
+    Other(String),
+}
+
+fn validate_url(path: &Path) -> anyhow::Result<UrlShortcutType> {
     let s = fs::read_to_string(path)?;
 
     let mut lines = s.lines();
@@ -122,16 +138,23 @@ fn validate_url(path: &Path) -> anyhow::Result<String> {
     let icon = lines
         .find_map(|line| line.strip_prefix("IconFile="))
         .map(str::trim)
-        .context("nicn")?;
+        .unwrap_or_default();
 
-    if url.starts_with("steam://") && 
-    // Game still installed
-    fs::exists(icon).unwrap_or_default()
-    {
-        return Ok(url.to_owned());
+    let icon_exists = !icon.is_empty() && fs::exists(icon).unwrap_or_default();
+
+    if url.starts_with("steam://") && icon_exists {
+        return Ok(UrlShortcutType::Steam(url.to_owned()));
     }
 
-    Err(anyhow::anyhow!("bad url"))
+    if url.starts_with("https://") || url.starts_with("http://") {
+        return Ok(UrlShortcutType::Web(url.to_owned()));
+    }
+
+    if icon_exists {
+        Ok(UrlShortcutType::Other(url.to_owned()))
+    } else {
+        Err(anyhow::anyhow!("bad url"))
+    }
 }
 
 const CLSID_SHELL_LINK: GUID = GUID::from_values(
@@ -141,7 +164,15 @@ const CLSID_SHELL_LINK: GUID = GUID::from_values(
     [0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46],
 );
 
-fn validate_lnk(path: &Path) -> anyhow::Result<PathBuf> {
+#[allow(dead_code)]
+enum LnkShortcutType {
+    ExistingExecutable(PathBuf),
+    NonExistingExecutable(PathBuf),
+    SystemApplication(PathBuf),
+}
+
+fn validate_lnk(path: &Path) -> anyhow::Result<LnkShortcutType> {
+    // Done in main
     // let ret = unsafe { CoInitialize(None) };
 
     // if ret.is_err() {
@@ -183,14 +214,27 @@ fn validate_lnk(path: &Path) -> anyhow::Result<PathBuf> {
     let sz_got_path_str = unsafe { PCWSTR::from_raw(sz_got_path.as_ptr()).to_string()? };
 
     let exe_path = PathBuf::from(sz_got_path_str);
-    if !exe_path.exists() || !exe_path.is_file() {
-        bail!("bad file");
+    if exe_path
+        .extension()
+        .and_then(OsStr::to_str)
+        .map(str::to_lowercase)
+        != Some(String::from("exe"))
+    {
+        bail!("non executable file");
+    }
+
+    if !exe_path.exists() {
+        return Ok(LnkShortcutType::NonExistingExecutable(exe_path));
+    }
+
+    if !exe_path.is_file() {
+        bail!("not a file");
     }
 
     let normalized = exe_path.to_str().unwrap_or_default().to_lowercase();
     if normalized.contains("\\system32\\") {
-        bail!("sys32");
+        return Ok(LnkShortcutType::SystemApplication(exe_path));
     }
 
-    Ok(exe_path)
+    Ok(LnkShortcutType::ExistingExecutable(exe_path))
 }

@@ -79,7 +79,7 @@ fn try_get_registry_logon_stats(name: &str, root: &Key) -> anyhow::Result<DateTi
         flt = Some(time);
     }
 
-    flt.context("failed to find logon time")
+    flt.context("ltf")
 }
 
 fn parse_registry_system_time(bytes: [u16; 8]) -> anyhow::Result<DateTime<Utc>> {

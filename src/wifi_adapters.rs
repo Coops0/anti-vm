@@ -26,7 +26,7 @@ pub fn score_wifi_adapters(flags: &mut Flags) -> anyhow::Result<()> {
 const DW_MAX_CLIENT: u32 = 2;
 
 fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
-    let mut h_client = HandleWrapper::new();
+    let mut h_client = HandleManager::new();
     let mut dw_cur_version = 0;
 
     let mut p_if_list: *mut WLAN_INTERFACE_INFO_LIST = null_mut();
@@ -41,13 +41,13 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
     };
 
     if dw_result != ERROR_SUCCESS.0 {
-        bail!("WlanOpenHandle failed with error: {dw_result:?}");
+        bail!("wloh {dw_result:?}");
     }
 
     let dw_result = unsafe { WlanEnumInterfaces(h_client.0, None, &raw mut p_if_list) };
 
     if dw_result != ERROR_SUCCESS.0 {
-        bail!("WlanEnumInterfaces failed with error: {dw_result:?}");
+        bail!("wlei {dw_result:?}");
     }
 
     let len = unsafe { (*p_if_list).dwNumberOfItems } as usize;
@@ -88,15 +88,15 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
     Ok(devices_len)
 }
 
-struct HandleWrapper(pub HANDLE);
+struct HandleManager(pub HANDLE);
 
-impl HandleWrapper {
+impl HandleManager {
     const fn new() -> Self {
         Self(unsafe { core::mem::zeroed() })
     }
 }
 
-impl Drop for HandleWrapper {
+impl Drop for HandleManager {
     fn drop(&mut self) {
         if !self.0.is_invalid() {
             unsafe {

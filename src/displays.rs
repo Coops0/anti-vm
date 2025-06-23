@@ -42,7 +42,11 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
 fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Result<()> {
     let monitor = DisplayMonitor::FromInterfaceIdAsync(&device.Id()?)?.get()?;
 
-    match inspect!("(init) physical connector", monitor.PhysicalConnector())? {
+    match inspect!(
+        inner,
+        "(init) physical connector",
+        monitor.PhysicalConnector()
+    )? {
         DisplayMonitorPhysicalConnectorKind::Unknown => {
             flags.large_penalty();
         }
@@ -72,7 +76,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => flags.large_penalty(),
     }
 
-    match inspect!("connection kind", monitor.ConnectionKind()?) {
+    match inspect!(inner, "connection kind", monitor.ConnectionKind()?) {
         // Laptop
         DisplayMonitorConnectionKind::Internal => flags.medium_bonus(),
         DisplayMonitorConnectionKind::Wired => {}
@@ -81,7 +85,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         _ => flags.medium_penalty(),
     }
 
-    match inspect!("usage kind", monitor.UsageKind())? {
+    match inspect!(inner, "usage kind", monitor.UsageKind())? {
         DisplayMonitorUsageKind::Standard => {}
         // DisplayMonitorUsageKind::HeadMounted | DisplayMonitorUsageKind::SpecialPurpose{
         _ => flags.large_penalty(),
@@ -95,13 +99,14 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     }
 
     // VMware & Vbox fails this
-    if inspect!("display name", monitor.DisplayName())?.is_empty() {
+    if inspect!(inner, "display name", monitor.DisplayName())?.is_empty() {
         flags.large_penalty();
     }
 
     // "An error code of zero - S_OK - just means that the API returned a null pointer value on the ABI so there was no interface to populate the Ok variant of Result."
     // https://github.com/microsoft/windows-rs/issues/3322#issuecomment-2408606524
     match inspect!(
+        inner,
         "physical size in in",
         monitor.PhysicalSizeInInches().and_then(|s| s.GetSize())
     ) {
@@ -112,7 +117,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         }
     }
 
-    let max_luminance = inspect!("max lum nits", monitor.MaxLuminanceInNits());
+    let max_luminance = inspect!(inner, "max lum nits", monitor.MaxLuminanceInNits());
     match (monitor.MinLuminanceInNits(), &max_luminance) {
         (Ok(0.0), Ok(0.0)) => {
             // VMware & Vbox
@@ -123,6 +128,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     }
 
     match inspect!(
+        inner,
         "max avg full frame lum nits",
         monitor.MaxAverageFullFrameLuminanceInNits()
     ) {
@@ -139,7 +145,11 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
         }
     }
 
-    match inspect!("native res px", monitor.NativeResolutionInRawPixels()) {
+    match inspect!(
+        inner,
+        "native res px",
+        monitor.NativeResolutionInRawPixels()
+    ) {
         Ok(resolution) => {
             score_display_size(resolution.Width, resolution.Height, flags);
         }

@@ -38,20 +38,20 @@ mod wifi_adapters;
 
 // TODO strip binary with build step too
 // TODO get rid of unused windows crate features
-fn main() {
-    let start = std::time::Instant::now();
-    let mut flags = Flags::new();
 
+// TODO implement tests running many times and getting the same score
+
+fn execute() -> Flags {
+    let mut flags = Flags::new();
     let mut enable_com_features = true;
 
-    let ret = unsafe { CoInitialize(None) };
+    // This is very finicky
+    let ret = COMLibrary::new();
     if ret.is_err() {
-        debug_println!("WARNING: Failed to initialize COM: {ret:?}");
+        debug_println!("WARNING: Failed to init COM: {ret:?}");
 
-        if COMLibrary::new().is_err() {
-            debug_println!(
-                "WARNING: Backup COM library initalization failed, removing COM features"
-            );
+        if unsafe { CoInitialize(None) }.is_err() {
+            debug_println!("WARNING: Backup COM init failed, removing COM features");
             enable_com_features = false;
         }
     }
@@ -67,24 +67,24 @@ fn main() {
 
     // SLOW CHECK: Takes 60-150ms
     // BUT: CANNOT be threaded, because it uses COM
+    #[rustfmt::skip]
     let os_t = std::thread::spawn(move || {
         let mut f = Flags::new();
-        if enable_com_features {
-            if inspect!("os", score_os(&mut f)).is_err() {
+        if enable_com_features 
+            && inspect!("os", score_os(&mut f)).is_err() {
                 f.large_penalty();
             }
-        }
         f
     });
 
     // SLOW CHECK: Takes ~40-400ms
+    #[rustfmt::skip]
     let installed_apps_t = std::thread::spawn(move || {
         let mut f = Flags::new();
-        if enable_com_features {
-            if inspect!("installed apps", score_installed_apps(&mut f)).is_err() {
-                f.large_penalty();
+        if enable_com_features
+            && inspect!("installed apps", score_installed_apps(&mut f)).is_err() {
+                    f.large_penalty();
             }
-        }
         f
     });
 
@@ -137,11 +137,11 @@ fn main() {
     }
 
     // SLOW CHECK: Takes ~53ms
-    if enable_com_features {
-        if inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
-            flags.large_penalty();
+    #[rustfmt::skip]
+    if enable_com_features
+         && inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
+                flags.large_penalty();
         }
-    }
 
     if inspect!("auto logon", is_auto_logon_enabled()).unwrap_or_default() {
         flags.medium_penalty();
@@ -168,9 +168,17 @@ fn main() {
         }
     }
 
+    flags
+}
+
+fn main() {
+    let start = std::time::Instant::now();
+    let flags = execute();
+
     debug_println!("penalties: {:?}", flags.penalties());
     debug_println!("bonuses: {:?}", flags.bonuses());
 
+    // TODO decide value to decide if finally detected
     println!("score: {}", flags.score());
 
     println!("TOTAL EXECUTION TIME: {}ms", start.elapsed().as_millis());

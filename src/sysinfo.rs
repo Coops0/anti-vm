@@ -61,14 +61,15 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
         _ => {}
     }
 
+    // I think this method may just be broken (always 0x80004002 - No such interface supported)
     // If has valid integrated display like a laptop
     // This is also checked in displays.rs but in a different way
-    if matches!(inspect!("integrated display size", unsafe { GetIntegratedDisplaySize() }), Ok(size) if size > 256.0)
+    if matches!(inspect!(inner, "integrated display size", unsafe { GetIntegratedDisplaySize() }), Ok(size) if size > 256.0)
     {
         flags.medium_bonus();
     }
 
-    let disk_space = inspect!("disk space", get_disk_space(flags)).context("gds")?;
+    let disk_space = inspect!(inner, "disk space", get_disk_space(flags)).context("gds")?;
     match disk_space.total_space_gig {
         // Windows 11 requires >= 64gb disk to even install
         0..=64 => flags.extreme_penalty(),

@@ -41,8 +41,21 @@ pub struct Flags {
 fn print_caller(t: &str, level: Level, location: &panic::Location<'_>) {
     use crate::debug_println;
 
+    let color = if t == "PENALTY" {
+        format!(
+            "{}{}",
+            crate::util::colors::DARK_RED,
+            crate::util::colors::BOLD
+        )
+    } else if t == "BONUS" {
+        format!("{}", crate::util::colors::BRIGHT_GREEN)
+    } else {
+        format!("{}", crate::util::colors::DARK_GREEN)
+    };
+
     debug_println!(
-        "{t}: {level:?} at {}:{}:{}",
+        "{color}{t}{}: {level:?} at {}:{}:{}",
+        crate::util::colors::DEFAULT,
         location.file(),
         location.line(),
         location.column()
