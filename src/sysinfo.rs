@@ -21,7 +21,9 @@ pub fn score_sysinfo(flags: &mut Flags) -> anyhow::Result<()> {
             0..=2 => flags.extreme_penalty(),
             3..=6 => flags.large_penalty(),
             7..=8 => flags.medium_penalty(),
-            _ => {}
+            9..=23 => {}
+            24..=32 => flags.medium_bonus(),
+            _ => flags.large_bonus(),
         }
 
         if memory_in_gigs % 2 != 0 {

@@ -18,12 +18,12 @@ use windows::Win32::{
 };
 use windows::core::Interface;
 use windows::{
-    Win32::System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance, CoInitialize},
+    Win32::System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance},
     core::GUID,
 };
 use windows_core::PCWSTR;
 
-use crate::{debug_println, flags::Flags, inspect};
+use crate::{debug_println, flags::Flags};
 
 pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
     let programs_dir = dirs::data_dir()
@@ -78,8 +78,8 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
     if found_steam_exe {
         match steam_games {
             0 => flags.large_penalty(),
-            1..4 => flags.small_penalty(),
-            4..=12 => {}
+            1..3 => flags.small_penalty(),
+            3..=6 => {}
             _ => flags.medium_bonus(),
         }
     }
@@ -87,7 +87,7 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
     match valid_programs {
         0 => flags.large_penalty(),
         1 => flags.small_penalty(),
-        2..=6 => {}
+        2..=12 => {}
         _ => flags.medium_bonus(),
     }
 

@@ -37,7 +37,6 @@ mod wifi_adapters;
 
 // TODO strip binary with build step too
 // TODO get rid of unused windows crate features
-// TODO!!! IS WIN32 THERAD SAFE????
 fn main() {
     let start = std::time::Instant::now();
     let mut flags = Flags::new();

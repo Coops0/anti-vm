@@ -15,7 +15,6 @@ pub fn score_bluetooth_adapters(flags: &mut Flags) -> anyhow::Result<()> {
     }
 
     debug_println!("found {bluetooth_adapter_count} valid Bluetooth adapters");
-
     Ok(())
 }
 
