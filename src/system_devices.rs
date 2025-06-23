@@ -1,15 +1,13 @@
 use windows::Devices::Enumeration::DeviceInformation;
 use windows_registry::LOCAL_MACHINE;
 
-use crate::{flags::Flags, inspect};
+use crate::flags::Flags;
 
-// TODO parrallelize this
 pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
-    let devices = inspect!(
-        "inner get system devices",
-        DeviceInformation::FindAllAsync()?.get()
-    )?;
+    // (Obviously) This is the bottleneck BUT: There is no Win32 API for this
+    let devices = DeviceInformation::FindAllAsync()?.get()?;
 
+    // No bonuses here any since it's common for hardened VMs to have these modified
     for device in devices {
         let Ok(name) = device.Name() else { continue };
         let lc = name.to_string_lossy().to_lowercase();
@@ -33,9 +31,7 @@ pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
             flags.medium_penalty();
         }
 
-        if let Some(service) = &pci.service
-            && service == "vmci"
-        {
+        if matches!(pci.service.as_deref(), Some("vmci")) {
             flags.extreme_penalty();
         }
 
@@ -45,6 +41,15 @@ pub fn score_system_devices(flags: &mut Flags) -> anyhow::Result<()> {
             .any(|id| id.to_lowercase().contains("vbox"))
         {
             flags.end_all_penalty();
+        }
+
+        let mfr = pci.manufacturer.to_lowercase();
+        if mfr.contains("vmware") || mfr.contains("virtualbox") || mfr.contains("vbox") {
+            flags.end_all_penalty();
+        }
+
+        if mfr.contains("microsoft corporation") {
+            flags.medium_penalty();
         }
     }
     Ok(())

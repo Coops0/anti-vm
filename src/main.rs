@@ -1,27 +1,24 @@
 #![feature(stmt_expr_attributes)]
 
 use crate::{
-    activated::check_is_activated, battery::get_battery,
-    bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags,
-    graphics_card::score_graphics_cards, local::get_is_local_account, os::score_os,
-    registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices,
-    usb_devices::score_usb_devices, various_wmi::score_various_wmi,
-    wifi_adapters::score_wifi_adapters,
+    activated::check_is_activated, auto_logon::is_auto_logon_enabled, battery::get_battery, bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, installed_apps::score_installed_apps, microsoft_account::has_microsoft_account, os::score_os, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
 };
 
 mod activated;
+mod auto_logon;
 mod battery;
 mod bluetooth_adapters;
 mod displays;
 mod flags;
 mod graphics_card;
-mod local;
+mod microsoft_account;
 mod os;
 mod registry;
 mod registry_macros;
 mod sysinfo;
 mod system_devices;
 mod usb_devices;
+mod installed_apps;
 mod util;
 mod various_wmi;
 mod wifi_adapters;
@@ -33,9 +30,11 @@ mod wifi_adapters;
 
 // TODO strip binary with build step too
 // TODO get rid of unused windows crate features
+// TODO!!! IS WIN32 THERAD SAFE????
 fn main() {
     let start = std::time::Instant::now();
     let mut flags = Flags::new();
+    score_installed_apps(&mut flags).unwrap();
 
     // VERY SLOW CHECK: Takes 150-400ms
     let system_devices_t = std::thread::spawn(|| {
@@ -80,11 +79,10 @@ fn main() {
     score_registry(&mut flags);
 
     // SLOW CHECK: Takes ~66ms
-    if inspect!("local account", get_is_local_account()).unwrap_or_default() {
-        flags.medium_penalty();
-    } else {
-        // If they are actually signed in with a Microsoft account 
+    if inspect!("micorosft account", has_microsoft_account()).unwrap_or_default() {
         flags.large_bonus();
+    } else {
+        flags.small_penalty();
     }
 
     if inspect!("activated", check_is_activated()).unwrap_or_default() {
@@ -105,6 +103,10 @@ fn main() {
     // SLOW CHECK: Takes ~53ms
     if inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
         flags.large_penalty();
+    }
+
+    if inspect!("auto logon", is_auto_logon_enabled()).unwrap_or_default() {
+        flags.medium_penalty();
     }
 
     match system_devices_t.join() {

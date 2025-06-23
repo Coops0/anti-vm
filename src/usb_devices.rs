@@ -24,6 +24,7 @@ pub fn score_usb_devices(flags: &mut Flags) -> anyhow::Result<()> {
     Ok(())
 }
 
+// FIXME maybe remove the bonuses here, since they can be spoofed, or decrease the bonus
 fn score_device(dev: &DeviceInfo, flags: &mut Flags) {
     // https://the-sz.com/products/usbid/index.php
     if
@@ -55,7 +56,7 @@ fn score_device(dev: &DeviceInfo, flags: &mut Flags) {
         dev.product_id() == 0x0AA7 ||
         dev.product_id() == 0x0AAA)
     {
-        flags.large_bonus();
+        flags.medium_bonus();
     }
 
     if REAL_VENDORS.iter().any(|v| *v == dev.vendor_id()) {
@@ -79,8 +80,9 @@ fn score_device(dev: &DeviceInfo, flags: &mut Flags) {
 
     #[allow(clippy::collapsible_if)]
     if let Some(driver) = dev.driver() {
+        // TODO expand this?
         if driver == "FocusriteUsb" {
-            flags.large_bonus();
+            flags.medium_bonus();
         }
     }
 
@@ -96,11 +98,11 @@ fn score_interface(int: &InterfaceInfo, flags: &mut Flags) {
         }
 
         if str == "Keychron Link" {
-            flags.large_bonus();
+            flags.medium_bonus();
         }
 
         if str.contains("NuPhy") {
-            flags.large_bonus();
+            flags.medium_bonus();
         }
     }
 }

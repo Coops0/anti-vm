@@ -1,11 +1,7 @@
-use std::{ptr::null_mut};
+use std::ptr::null_mut;
 
 use anyhow::bail;
-use windows::{
-    Win32::{
-        Foundation::{ERROR_SUCCESS, HANDLE},
-    },
-};
+use windows::Win32::Foundation::{ERROR_SUCCESS, HANDLE};
 
 use windows::Win32::NetworkManagement::WiFi::{
     WLAN_INTERFACE_INFO_LIST, WlanEnumInterfaces, WlanOpenHandle,
@@ -18,9 +14,10 @@ pub fn score_wifi_adapters(flags: &mut Flags) -> anyhow::Result<()> {
     let devices_len = get_w_lan_devices(flags)?;
     debug_println!("found {devices_len} valid WiFi adapters");
 
-    match devices_len {
-        0 => flags.medium_penalty(),
-        _ => flags.medium_bonus(),
+    if devices_len == 0 {
+        flags.medium_penalty();
+    } else {
+        flags.medium_bonus();
     }
 
     Ok(())
@@ -34,20 +31,20 @@ fn get_w_lan_devices(flags: &mut Flags) -> anyhow::Result<usize> {
 
     let mut p_if_list: *mut WLAN_INTERFACE_INFO_LIST = null_mut();
 
-    let dw_result =
-        unsafe { WlanOpenHandle(DW_MAX_CLIENT, None, &raw mut dw_cur_version, &raw mut h_client.0) };
+    let dw_result = unsafe {
+        WlanOpenHandle(
+            DW_MAX_CLIENT,
+            None,
+            &raw mut dw_cur_version,
+            &raw mut h_client.0,
+        )
+    };
 
     if dw_result != ERROR_SUCCESS.0 {
         bail!("WlanOpenHandle failed with error: {dw_result:?}");
     }
 
-    let dw_result = unsafe {
-        WlanEnumInterfaces(
-            h_client.0,
-            None,
-            &raw mut p_if_list,
-        )
-    };
+    let dw_result = unsafe { WlanEnumInterfaces(h_client.0, None, &raw mut p_if_list) };
 
     if dw_result != ERROR_SUCCESS.0 {
         bail!("WlanEnumInterfaces failed with error: {dw_result:?}");

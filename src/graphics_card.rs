@@ -49,6 +49,7 @@ pub fn score_graphics_cards(flags: &mut Flags) -> anyhow::Result<()> {
     Ok(())
 }
 
+// No bonuses here since it's common for hardened VMs to passthrough the host's graphics card
 #[rustfmt::skip]
 fn score_graphics_card(gc: &GraphicsCard, flags: &mut Flags) {
     if gc.description.contains("VMware") { flags.large_penalty(); }

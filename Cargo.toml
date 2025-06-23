@@ -8,6 +8,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.98"
 chrono = "0.4.41"
+dirs = "6.0.0"
 nusb = "0.1.14"
 paste2 = "1.1.1"
 serde = { version = "1.0.219", features = ["derive"] }
@@ -40,7 +41,10 @@ windows = { version = "0.61.1", features = [
     "Win32_Security_Authentication_Identity",
     "Devices_Bluetooth",
     "Win32_NetworkManagement",
-    "Win32_NetworkManagement_WiFi"
+    "Win32_NetworkManagement_WiFi",
+    "Win32_UI",
+    "Win32_UI_Shell",
+    "Win32_Globalization"
 ] }
 windows-collections = "0.2.0"
 windows-core = "0.61.2"

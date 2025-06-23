@@ -31,10 +31,9 @@ pub fn score_displays(flags: &mut Flags) -> anyhow::Result<()> {
 
     match valid_displays {
         0 => flags.extreme_penalty(),
-        1 => {}
         2..=4 => flags.small_bonus(),
-        // Over 6 monitors is crazy
-        _ => flags.large_penalty(),
+        // 1 is fine | but 4 is weird
+        _ => {}
     }
 
     Ok(())
@@ -129,7 +128,7 @@ fn score_display(device: &DeviceInformation, flags: &mut Flags) -> anyhow::Resul
     ) {
         Ok(0.0) | Err(_) => flags.medium_penalty(),
         Ok(l) => {
-            // If these match up then that's a good sign
+            // If these match up that's good 
             if let Ok(ml) = &max_luminance {
                 if (l - *ml).abs() < 0.01 {
                     flags.small_bonus();
