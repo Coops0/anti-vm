@@ -4,22 +4,7 @@ use windows::Win32::System::Com::CoInitialize;
 use wmi::COMLibrary;
 
 use crate::{
-    activated::{ActivationType, check_is_activated, get_windows_license_type},
-    auto_logon::is_auto_logon_enabled,
-    battery::get_battery,
-    bluetooth_adapters::score_bluetooth_adapters,
-    displays::score_displays,
-    flags::Flags,
-    graphics_card::score_graphics_cards,
-    installed_apps::score_installed_apps,
-    microsoft_account::has_microsoft_account,
-    os::score_os,
-    registry::score_registry,
-    sysinfo::score_sysinfo,
-    system_devices::score_system_devices,
-    usb_devices::score_usb_devices,
-    various_wmi::score_various_wmi,
-    wifi_adapters::score_wifi_adapters,
+    activated::{check_is_activated, get_windows_license_type, ActivationType}, auto_logon::is_auto_logon_enabled, battery::get_battery, bluetooth_adapters::score_bluetooth_adapters, displays::score_displays, flags::Flags, graphics_card::score_graphics_cards, installed_apps::score_installed_apps, microsoft_account::has_microsoft_account, os::score_os, printers::score_printers, registry::score_registry, sysinfo::score_sysinfo, system_devices::score_system_devices, usb_devices::score_usb_devices, various_wmi::score_various_wmi, wifi_adapters::score_wifi_adapters
 };
 
 mod activated;
@@ -37,6 +22,7 @@ mod registry_macros;
 mod sysinfo;
 mod system_devices;
 mod usb_devices;
+mod printers;
 mod util;
 mod various_wmi;
 mod wifi_adapters;
@@ -157,6 +143,10 @@ fn execute() -> Flags {
         }
 
     if inspect!("auto logon", is_auto_logon_enabled()).unwrap_or_default() {
+        flags.medium_penalty();
+    }
+
+    if inspect!("printers", score_printers(&mut flags)).is_err() {
         flags.medium_penalty();
     }
 
