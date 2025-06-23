@@ -1,6 +1,7 @@
 #![feature(stmt_expr_attributes)]
 
 use windows::Win32::System::Com::CoInitialize;
+use wmi::COMLibrary;
 
 use crate::{
     activated::check_is_activated, auto_logon::is_auto_logon_enabled, battery::get_battery,
@@ -41,9 +42,18 @@ fn main() {
     let start = std::time::Instant::now();
     let mut flags = Flags::new();
 
+    let mut enable_com_features = true;
+
     let ret = unsafe { CoInitialize(None) };
     if ret.is_err() {
         debug_println!("WARNING: Failed to initialize COM: {ret:?}");
+
+        if COMLibrary::new().is_err() {
+            debug_println!(
+                "WARNING: Backup COM library initalization failed, removing COM features"
+            );
+            enable_com_features = false;
+        }
     }
 
     // VERY SLOW CHECK: Takes 150-400ms
@@ -57,19 +67,23 @@ fn main() {
 
     // SLOW CHECK: Takes 60-150ms
     // BUT: CANNOT be threaded, because it uses COM
-    let os_t = std::thread::spawn(|| {
+    let os_t = std::thread::spawn(move || {
         let mut f = Flags::new();
-        if inspect!("os", score_os(&mut f)).is_err() {
-            f.large_penalty();
+        if enable_com_features {
+            if inspect!("os", score_os(&mut f)).is_err() {
+                f.large_penalty();
+            }
         }
         f
     });
 
     // SLOW CHECK: Takes ~40-400ms
-    let installed_apps_t = std::thread::spawn(|| {
+    let installed_apps_t = std::thread::spawn(move || {
         let mut f = Flags::new();
-        if inspect!("installed apps", score_installed_apps(&mut f)).is_err() {
-            f.large_penalty();
+        if enable_com_features {
+            if inspect!("installed apps", score_installed_apps(&mut f)).is_err() {
+                f.large_penalty();
+            }
         }
         f
     });
@@ -97,10 +111,12 @@ fn main() {
     score_registry(&mut flags);
 
     // SLOW CHECK: Takes ~66ms
-    if inspect!("micorosft account", has_microsoft_account()).unwrap_or_default() {
-        flags.large_bonus();
-    } else {
-        flags.small_penalty();
+    if enable_com_features {
+        if inspect!("micorosft account", has_microsoft_account()).unwrap_or_default() {
+            flags.large_bonus();
+        } else {
+            flags.small_penalty();
+        }
     }
 
     if inspect!("activated", check_is_activated()).unwrap_or_default() {
@@ -109,9 +125,11 @@ fn main() {
         flags.medium_penalty();
     }
 
-    // this can be spoofed, and either way laptops can have discrete graphics cards
-    if inspect!("graphics card", score_graphics_cards(&mut flags)).is_err() {
-        flags.medium_penalty();
+    if enable_com_features {
+        // this can be spoofed, and either way laptops can have discrete graphics cards
+        if inspect!("graphics card", score_graphics_cards(&mut flags)).is_err() {
+            flags.medium_penalty();
+        }
     }
 
     if inspect!("bluetooth", score_bluetooth_adapters(&mut flags)).is_err() {
@@ -119,8 +137,10 @@ fn main() {
     }
 
     // SLOW CHECK: Takes ~53ms
-    if inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
-        flags.large_penalty();
+    if enable_com_features {
+        if inspect!("various wmi", score_various_wmi(&mut flags)).is_err() {
+            flags.large_penalty();
+        }
     }
 
     if inspect!("auto logon", is_auto_logon_enabled()).unwrap_or_default() {
