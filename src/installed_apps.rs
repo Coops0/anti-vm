@@ -2,16 +2,22 @@ use std::{
     ffi::OsStr,
     fs,
     path::{Path, PathBuf},
+    ptr::null_mut,
 };
 
 use anyhow::{Context, bail};
 use windows::Win32::{
-    Foundation::MAX_PATH, Globalization::CP_ACP, System::Com::IPersistFile, UI::Shell::IShellLinkW,
+    Foundation::MAX_PATH,
+    Globalization::CP_ACP,
+    Storage::FileSystem::{WIN32_FIND_DATAA, WIN32_FIND_DATAW},
+    System::Com::IPersistFile,
+    UI::Shell::{IShellLinkA, IShellLinkW, SLGP_SHORTPATH},
 };
 use windows::Win32::{
     Globalization::{MB_COMPOSITE, MULTI_BYTE_TO_WIDE_CHAR_FLAGS, MultiByteToWideChar},
     System::Com::STGM_READ,
 };
+use windows::core::Interface;
 use windows::{
     Win32::System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance, CoInitialize},
     core::GUID,
@@ -44,11 +50,13 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
         else {
             continue;
         };
-        if ext != "lnk" && ext != "url" {
-            continue;
-        }
 
+        println!("app: {:?} {:?}", p.file_name(), p.display());
         if ext == "lnk" {
+            // todo change to .unwrap_or_default()
+            if !validate_lnk(&p).unwrap() {
+                continue;
+            }
         } else if ext == "url" {
             if !validate_url(&p).unwrap_or_default() {
                 continue;
@@ -56,8 +64,6 @@ pub fn score_installed_apps(flags: &mut Flags) -> anyhow::Result<()> {
         } else {
             continue;
         }
-
-        println!("found installed app: {n} ({t})");
     }
 
     todo!();
@@ -82,17 +88,19 @@ fn validate_url(path: &Path) -> Option<bool> {
     let s = fs::read_to_string(path).ok()?;
 
     let mut lines = s.lines();
-    // URL=steam://rungameid/1222670
-    // IconFile
 
     let ret = match (
         lines.clone().find_map(|line| line.strip_prefix("URL=")),
         lines.find_map(|line| line.strip_prefix("IconFile=")),
     ) {
         (None, None) => false,
-        (None, Some(icon)) if icon.is_empty() => false,
+        (Some(""), None) => false,
+        (None, Some("")) => false,
+
+        (Some(url), None) if url.contains("//") => true,
+        (Some(url), None) => fs::exists(Path::new(url)).is_ok_and(|x| x),
+
         (None, Some(icon)) => fs::exists(Path::new(icon)).is_ok_and(|x| x),
-        (Some(url), None) if url.is_empty() => false,
         _ => true,
     };
 
@@ -100,60 +108,26 @@ fn validate_url(path: &Path) -> Option<bool> {
 }
 
 const CLSID_SHELL_LINK: GUID = GUID::from_values(
-    0x000214EE,
-    0x0000,
-    0x0000,
-    [0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46],
-);
-
-// IID_I_PERSIST_FILE, 0x0000010B, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46
-const IID_I_PERSIST_FILE: GUID = GUID::from_values(
-    0x0000010b,
+    0x00021401,
     0x0000,
     0x0000,
     [0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46],
 );
 
 fn validate_lnk(path: &Path) -> anyhow::Result<bool> {
-    //     HRESULT ResolveIt(HWND hwnd, LPCSTR lpszLinkFile, LPWSTR lpszPath, int iPathBufferSize)
-    // {
-    //     HRESULT hres;
-    //     IShellLink* psl;
-    //     WCHAR szGotPath[MAX_PATH];
-    //     WCHAR szDescription[MAX_PATH];
-    //     WIN32_FIND_DATA wfd;
-
-    //     *lpszPath = 0; // Assume failure
-
     let ret = unsafe { CoInitialize(None) };
 
     if ret.is_err() {
         bail!("Failed to initialize COM: {ret:?}");
     }
 
-    // let psl: IShellLinkW =
-    // unsafe { CoCreateInstance(&CLSID_SHELL_LINK, None, CLSCTX_INPROC_SERVER)? };
-
-    let ppf: IPersistFile =
-        unsafe { CoCreateInstance(&IID_I_PERSIST_FILE, None, CLSCTX_INPROC_SERVER)? };
-
-    //     // Get a pointer to the IShellLink interface. It is assumed that CoInitialize
-    //     // has already been called.
-    //     hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
-    //     if (SUCCEEDED(hres))
-    //     {
-    //         IPersistFile* ppf;
-
-    //         // Get a pointer to the IPersistFile interface.
-    //         hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
-
-    //         if (SUCCEEDED(hres))
-    //         {
-    //             WCHAR wsz[MAX_PATH];
+    let psl: IShellLinkW =
+        unsafe { CoCreateInstance(&CLSID_SHELL_LINK, None, CLSCTX_INPROC_SERVER)? };
+    let ppf: IPersistFile = psl.cast()?;
 
     let mut wsz = [0u16; MAX_PATH as usize];
     let lpsz_link_file = path.to_str().context("nps")?;
-    // pub unsafe fn MultiByteToWideChar(codepage: u32, dwflags: MULTI_BYTE_TO_WIDE_CHAR_FLAGS, lpmultibytestr: &[u8], lpwidecharstr: Option<&mut [u16]>) -> i32 {
+
     let mbtwc_ret = unsafe {
         MultiByteToWideChar(
             CP_ACP,
@@ -166,60 +140,38 @@ fn validate_lnk(path: &Path) -> anyhow::Result<bool> {
     if mbtwc_ret <= 0 {
         bail!("Failed to convert string to wide char: {lpsz_link_file}");
     }
-    //             // Ensure that the string is Unicode.
-    //             MultiByteToWideChar(CP_ACP, 0, lpszLinkFile, -1, wsz, MAX_PATH);
-
-    //             // Add code here to check return value from MultiByteWideChar
-    //             // for success.
-
-    //             // Load the shortcut.
-    //             hres = ppf->Load(wsz, STGM_READ);
 
     let wsz_pcwstr = PCWSTR::from_raw(wsz.as_ptr());
     unsafe {
-        ppf.Load(wsz_pcwstr, STGM_READ)?;
+        ppf.Load(wsz_pcwstr.clone(), STGM_READ)?;
     }
 
-    //             if (SUCCEEDED(hres))
-    //             {
-    //                 // Resolve the link.
-    //                 hres = psl->Resolve(hwnd, 0);
+    let mut sz_got_path = [0u16; MAX_PATH as usize];
+    // let mut wfd: WIN32_FIND_DATAW = unsafe { core::mem::zeroed() };
 
-    //                 if (SUCCEEDED(hres))
-    //                 {
-    //                     // Get the path to the link target.
-    //                     hres = psl->GetPath(szGotPath, MAX_PATH, (WIN32_FIND_DATA*)&wfd, SLGP_SHORTPATH);
+    unsafe {
+        psl.GetPath(&mut sz_got_path, null_mut(), SLGP_SHORTPATH.0 as u32)?;
+    }
 
-    //                     if (SUCCEEDED(hres))
-    //                     {
-    //                         // Get the description of the target.
-    //                         hres = psl->GetDescription(szDescription, MAX_PATH);
+    let sz_got_path_str = unsafe { PCWSTR::from_raw(sz_got_path.as_ptr()).to_string()? };
 
-    //                         if (SUCCEEDED(hres))
-    //                         {
-    //                             hres = StringCbCopy(lpszPath, iPathBufferSize, szGotPath);
-    //                             if (SUCCEEDED(hres))
-    //                             {
-    //                                 // Handle success
-    //                             }
-    //                             else
-    //                             {
-    //                                 // Handle the error
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             }
+    let exe_path = PathBuf::from(sz_got_path_str);
+    if !exe_path.exists() || !exe_path.is_file() {
+        return Ok(false);
+    }
 
-    //             // Release the pointer to the IPersistFile interface.
-    //             ppf->Release();
-    //         }
+    if exe_path.ancestors().any(|a| {
+        let mut a = a.to_str().unwrap_or_default().to_lowercase();
+        a = a.replace('\\', "");
+        a = a.replace("/", "");
+        a = a.trim().to_string();
 
-    //         // Release the pointer to the IShellLink interface.
-    //         psl->Release();
-    //     }
-    //     return hres;
-    // }
+        a == "system32"
+    }) {
+        println!("skipping system32 app: {}", exe_path.display());
+        return Ok(false);
+    }
 
-    todo!();
+    println!("valid app: {}", exe_path.display());
+    Ok(true)
 }
